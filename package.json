@@ -1,0 +1,27 @@
+{
+  "name": "webpack-merge-cssmoudle-less",
+  "version": "0.0.1",
+  "description": "A webpack plugin for ant design pro less",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chenshuai2144/merge-cssMoudle-less.git"
+  },
+  "keywords": [
+    "merge",
+    "less"
+  ],
+  "author": "chenshuai2144",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chenshuai2144/merge-cssMoudle-less/issues"
+  },
+  "homepage": "https://github.com/chenshuai2144/merge-cssMoudle-less#readme",
+  "dependencies": {
+    "postcss": "^6.0.23",
+    "postcss-less": "^2.0.0"
+  }
+}
