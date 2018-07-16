@@ -1,5 +1,5 @@
 {
-  "name": "webpack-merge-cssmoudle-less",
+  "name": "antd-pro-merge-less",
   "version": "0.0.1",
   "description": "A webpack plugin for ant design pro less",
   "main": "index.js",
