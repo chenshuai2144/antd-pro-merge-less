@@ -20,8 +20,8 @@ const loopAllLess = parents => {
     .sync(parents + "/**/**.less", { ignore: "**/node_modules/**" })
     .filter(
       filePath =>
-        filePath.includes("ant.design.pro.less") &&
-        filePath.includes("global.less")
+        !filePath.includes("ant.design.pro.less") &&
+        !filePath.includes("global.less")
     )
     .forEach(relaPath => {
       // post css add localIdentNameplugin
