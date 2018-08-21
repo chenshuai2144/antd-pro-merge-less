@@ -11,11 +11,10 @@ const getLocalIdentName = require("./getLocalIdentName");
 const AddlocalIdentName = require("./AddlocalIdentName");
 const replacedefaultLess = require("./replacedefaultLess");
 // read less file list
-const lessArray = [
-  '@import "../node_modules/antd/lib/style/themes/default.less";'
-];
+let lessArray = [];
 const loopAllLess = parents => {
   const promiseList = [];
+  lessArray = ['@import "../node_modules/antd/lib/style/themes/default.less";'];
   glob
     .sync(parents + "/**/**.less", { ignore: "**/node_modules/**" })
     .filter(
@@ -24,6 +23,7 @@ const loopAllLess = parents => {
         !filePath.includes("global.less")
     )
     .forEach(relaPath => {
+      console.log(relaPath);
       // post css add localIdentNameplugin
       const fileContent = replacedefaultLess(relaPath);
       // push less file
@@ -67,5 +67,10 @@ class mergeLessPlugin {
     });
   }
 }
-
+loopAllLess("/Users/jim/Documents/GitHub/ant-design-pro/src").then(() => {
+  fs.writeFileSync(
+    "/Users/jim/Documents/GitHub/ant-design-pro/.temp/ant-design-pro.less",
+    lessArray.join("\n")
+  );
+});
 module.exports = mergeLessPlugin;
