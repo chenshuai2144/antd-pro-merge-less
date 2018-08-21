@@ -67,10 +67,4 @@ class mergeLessPlugin {
     });
   }
 }
-loopAllLess("/Users/jim/Documents/GitHub/ant-design-pro/src").then(() => {
-  fs.writeFileSync(
-    "/Users/jim/Documents/GitHub/ant-design-pro/.temp/ant-design-pro.less",
-    lessArray.join("\n")
-  );
-});
 module.exports = mergeLessPlugin;
