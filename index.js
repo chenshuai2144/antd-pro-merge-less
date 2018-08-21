@@ -18,6 +18,11 @@ const loopAllLess = parents => {
   const promiseList = [];
   glob
     .sync(parents + "/**/**.less", { ignore: "**/node_modules/**" })
+    .filter(
+      filePath =>
+        filePath.includes("ant.design.pro.less") &&
+        filePath.includes("global.less")
+    )
     .forEach(relaPath => {
       // post css add localIdentNameplugin
       const fileContent = replacedefaultLess(relaPath);
