@@ -23,7 +23,6 @@ const loopAllLess = parents => {
         !filePath.includes("global.less")
     )
     .forEach(relaPath => {
-      console.log(relaPath);
       // post css add localIdentNameplugin
       const fileContent = replacedefaultLess(relaPath);
       // push less file
