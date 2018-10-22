@@ -14,7 +14,8 @@ const replacedefaultLess = require("./replacedefaultLess");
 let lessArray = [];
 const loopAllLess = parents => {
   const promiseList = [];
-  lessArray = ['@import "../node_modules/antd/lib/style/themes/default.less";'];
+  const antdLessPath = path.join(require.resolve('antd'), '../style/themes/default.less');
+  lessArray = [`@import "${antdLessPath}";`];
   glob
     .sync(parents + "/**/**.less", { ignore: "**/node_modules/**" })
     .filter(
