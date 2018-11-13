@@ -34,7 +34,7 @@ const loopAllLess = parents => {
           getLocalIdentName(relaPath)
         ).then(result => {
           lessArray.push(result);
-        })
+        }, err => err)
       );
     });
   return Promise.all(promiseList);
@@ -52,7 +52,7 @@ class mergeLessPlugin {
 
   apply(compiler) {
     const { options } = this;
-    compiler.plugin("emit", (compilation, callback) => {
+    compiler.hooks.emit.tapAsync("MergeLessPlugin", (compilation, callback) => {
       const { outFile } = options;
       // covert less
       if (fs.existsSync(outFile)) {
@@ -62,6 +62,8 @@ class mergeLessPlugin {
       }
       loopAllLess(options.stylesDir).then(() => {
         fs.writeFileSync(outFile, lessArray.join("\n"));
+        callback();
+      }, () => {
         callback();
       });
     });
