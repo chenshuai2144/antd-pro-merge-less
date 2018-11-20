@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * 这个方法用来处理 css-modlue
  * 由于没有开源插件，所以自己撸了一个
