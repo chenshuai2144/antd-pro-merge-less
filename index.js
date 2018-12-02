@@ -6,39 +6,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const glob = require("glob");
-const getLocalIdentName = require("./getLocalIdentName");
-const AddlocalIdentName = require("./AddlocalIdentName");
-const replacedefaultLess = require("./replacedefaultLess");
-// read less file list
-let lessArray = [];
-const loopAllLess = parents => {
-  const promiseList = [];
-  const antdLessPath = path.join(require.resolve('antd'), '../style/themes/default.less');
-  lessArray = [`@import "${antdLessPath}";`];
-  glob
-    .sync(parents + "/**/**.less", { ignore: "**/node_modules/**" })
-    .filter(
-      filePath =>
-        !filePath.includes("ant.design.pro.less") &&
-        !filePath.includes("global.less")
-    )
-    .forEach(relaPath => {
-      // post css add localIdentNameplugin
-      const fileContent = replacedefaultLess(relaPath);
-      // push less file
-      promiseList.push(
-        AddlocalIdentName(
-          relaPath,
-          fileContent,
-          getLocalIdentName(relaPath)
-        ).then(result => {
-          lessArray.push(result);
-        }, err => err)
-      );
-    });
-  return Promise.all(promiseList);
-};
+const loopAllLess = require("./loopAllLess");
 
 class mergeLessPlugin {
   constructor(options) {
@@ -60,12 +28,15 @@ class mergeLessPlugin {
       } else if (!fs.existsSync(path.dirname(outFile))) {
         fs.mkdirSync(path.dirname(outFile));
       }
-      loopAllLess(options.stylesDir).then(() => {
-        fs.writeFileSync(outFile, lessArray.join("\n"));
-        callback();
-      }, () => {
-        callback();
-      });
+      loopAllLess(options.stylesDir).then(
+        (lessArray) => {
+          fs.writeFileSync(outFile, lessArray.join("\n"));
+          callback();
+        },
+        () => {
+          callback();
+        }
+      );
     });
   }
 }
