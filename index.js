@@ -29,8 +29,8 @@ class mergeLessPlugin {
         fs.mkdirSync(path.dirname(outFile));
       }
       loopAllLess(options.stylesDir).then(
-        (lessArray) => {
-          fs.writeFileSync(outFile, lessArray.join("\n"));
+        content => {
+          fs.writeFileSync(outFile, content);
           callback();
         },
         () => {

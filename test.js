@@ -5,8 +5,8 @@ const callback = () => {
   console.log("finish");
 };
 loopAllLess("/Users/qixian.cs/Documents/GitHub/ant-design-pro/src/").then(
-  lessArray => {
-    fs.writeFileSync("./antdPro.less", lessArray.join("\n"));
+  (content) => {
+    fs.writeFileSync("./antdPro.less", content);
     callback();
   },
   () => {

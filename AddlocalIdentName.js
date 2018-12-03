@@ -4,7 +4,7 @@ const syntax = require("postcss-less");
 const Tokenizer = require("css-selector-tokenizer");
 const genericNames = require("generic-names");
 const getLocalIdentName = require("./getLocalIdentName");
-
+const uniqBy = require("lodash.uniqby");
 const fileNameList = [];
 
 const walkRules = (less, callback) => {
@@ -195,7 +195,7 @@ const AddlocalIdentName = (lessPath, lessText) => {
       syntax
     })
     .then(result => {
-      result.messages = fileNameList;
+      result.messages = uniqBy(fileNameList);
       return result;
     });
 };
