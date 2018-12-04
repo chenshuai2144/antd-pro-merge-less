@@ -18,7 +18,10 @@ const walkRules = (less, callback) => {
   });
   less.walkRules(rule => {
     if (rule.parent.type !== "atrule" || !/keyframes$/.test(rule.parent.name)) {
-      if (rule.selector.indexOf("(") === -1) {
+      if (
+        rule.selector.indexOf("(") === -1 ||
+        rule.selector.includes(":global(")
+      ) {
         callback(rule);
       }
     }
@@ -164,6 +167,13 @@ const LocalIdentNameplugin = postcss.plugin("LocalIdentNameplugin", options => {
           getAlias
         );
         if (selector) {
+          if (selector.includes(":global(")) {
+            // converted :global(.className）
+            const className = selector.match(/:global\((\S*)\)/)[1];
+            rule.selector = className;
+          } else {
+            rule.selector = selector;
+          }
           rule.selector = selector;
         } else {
           //selector 为空，说明是个 :global{}
