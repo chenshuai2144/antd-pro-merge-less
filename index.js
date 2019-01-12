@@ -8,13 +8,16 @@ const fs = require("fs");
 const path = require("path");
 const glob = require("glob");
 const getLocalIdentName = require("./getLocalIdentName");
-const AddlocalIdentName = require("./AddlocalIdentName");
-const replacedefaultLess = require("./replacedefaultLess");
+const AddLocalIdentName = require("./AddLocalIdentName");
+const replaceDefaultLess = require("./replaceDefaultLess");
 // read less file list
 let lessArray = [];
 const loopAllLess = parents => {
   const promiseList = [];
-  const antdLessPath = path.join(require.resolve('antd'), '../style/themes/default.less');
+  const antdLessPath = path.join(
+    require.resolve("antd"),
+    "../style/themes/default.less"
+  );
   lessArray = [`@import "${antdLessPath}";`];
   glob
     .sync(parents + "/**/**.less", { ignore: "**/node_modules/**" })
@@ -23,18 +26,21 @@ const loopAllLess = parents => {
         !filePath.includes("ant.design.pro.less") &&
         !filePath.includes("global.less")
     )
-    .forEach(relaPath => {
-      // post css add localIdentNameplugin
-      const fileContent = replacedefaultLess(relaPath);
+    .forEach(realPath => {
+      // post css add localIdentNamePlugin
+      const fileContent = replaceDefaultLess(realPath);
       // push less file
       promiseList.push(
-        AddlocalIdentName(
-          relaPath,
+        AddLocalIdentName(
+          realPath,
           fileContent,
-          getLocalIdentName(relaPath)
-        ).then(result => {
-          lessArray.push(result);
-        }, err => err)
+          getLocalIdentName(realPath)
+        ).then(
+          result => {
+            lessArray.push(result);
+          },
+          err => err
+        )
       );
     });
   return Promise.all(promiseList);
@@ -42,11 +48,11 @@ const loopAllLess = parents => {
 
 class mergeLessPlugin {
   constructor(options) {
-    const defaulOptions = {
+    const defaultOptions = {
       stylesDir: path.join(__dirname, "./src/"),
       outFile: path.join(__dirname, "./tmp/ant.design.pro.less")
     };
-    this.options = Object.assign(defaulOptions, options);
+    this.options = Object.assign(defaultOptions, options);
     this.generated = false;
   }
 
@@ -60,12 +66,15 @@ class mergeLessPlugin {
       } else if (!fs.existsSync(path.dirname(outFile))) {
         fs.mkdirSync(path.dirname(outFile));
       }
-      loopAllLess(options.stylesDir).then(() => {
-        fs.writeFileSync(outFile, lessArray.join("\n"));
-        callback();
-      }, () => {
-        callback();
-      });
+      loopAllLess(options.stylesDir).then(
+        () => {
+          fs.writeFileSync(outFile, lessArray.join("\n"));
+          callback();
+        },
+        () => {
+          callback();
+        }
+      );
     });
   }
 }
