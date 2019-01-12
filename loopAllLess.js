@@ -1,6 +1,6 @@
 const path = require("path");
 const glob = require("glob");
-const AddlocalIdentName = require("./AddlocalIdentName");
+const getVariable = require("./getVariable");
 const replacedefaultLess = require("./replacedefaultLess");
 const deleteRelativePath = require("./removeRelativePath");
 const uniqBy = require("lodash.uniqby");
@@ -23,7 +23,7 @@ const loopAllLess = async parents => {
       const fileContent = replacedefaultLess(relaPath);
       // push less file
       promiseList.push(
-        AddlocalIdentName(relaPath, fileContent).then(
+        getVariable(relaPath, fileContent).then(
           result => {
             importFileList = importFileList.concat(result.messages);
             return result.content.toString();
