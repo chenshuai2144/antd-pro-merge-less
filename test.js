@@ -7,7 +7,7 @@ const callback = () => {
 loopAllLess('/Users/qixian.cs/Documents/GitHub/ant-design/components/').then(
   content => {
     fs.writeFileSync(
-      './color/antdPro.less',
+      './function/color/antd-variable.less',
       `@import 'bezierEasing';
     @import 'colorPalette';
     @import "tinyColor";
