@@ -30,29 +30,31 @@ function discardAndReport(less, result) {
   less.each(discardEmpty);
 }
 const LocalIdentNamePlugin = postcss.plugin('LocalIdentNamePlugin', options => {
+  let lessContent = [];
   return (less, result) => {
     less.walkAtRules(atRule => {
-      if (atRule.import) {
+      if (!atRule.variable) {
         atRule.remove();
       }
-      if (atRule.mixin) {
-        atRule.remove();
+      if (
+        atRule.variable &&
+        !atRule.name.includes('ant-prefix') &&
+        !atRule.name.includes('prefix-cls') &&
+        !atRule.params.includes('ant-prefix')
+      ) {
+        lessContent.push(`@${atRule.name}:${atRule.params}`);
       }
     });
-    less.walkDecls(decls => {
-      const content = decls.toString();
-      if (!content.includes('@')) {
-        decls.remove();
-      }
-    });
+
     less.walkComments(decls => {
       decls.remove();
     });
     discardAndReport(less, result);
+    result.variable = lessContent.join(';');
   };
 });
 
-const AddLocalIdentName = (lessPath, lessText) => {
+const getJsVar = (lessPath, lessText) => {
   lessPath = lessPath;
   return postcss([LocalIdentNamePlugin()])
     .process(lessText, {
@@ -65,4 +67,4 @@ const AddLocalIdentName = (lessPath, lessText) => {
     });
 };
 
-module.exports = AddLocalIdentName;
+module.exports = getJsVar;

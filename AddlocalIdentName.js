@@ -1,73 +1,65 @@
 /* eslint-disable */
-const postcss = require("postcss");
-const syntax = require("postcss-less");
-const Tokenizer = require("css-selector-tokenizer");
-const genericNames = require("generic-names");
-const getLocalIdentName = require("./getLocalIdentName");
-const uniqBy = require("lodash.uniqby");
+const postcss = require('postcss');
+const syntax = require('postcss-less');
+const Tokenizer = require('css-selector-tokenizer');
+const genericNames = require('generic-names');
+const getLocalIdentName = require('./getLocalIdentName');
+const uniqBy = require('lodash.uniqby');
 const fileNameList = [];
 
 const walkRules = (less, callback) => {
   less.walkAtRules(atRule => {
     if (atRule.import) {
       atRule.remove();
-      if (atRule.options !== "(less)") {
+      if (atRule.options !== '(less)') {
         fileNameList.push(atRule.filename);
       }
     }
   });
   less.walkRules(rule => {
-    if (rule.parent.type !== "atrule" || !/keyframes$/.test(rule.parent.name)) {
-      if (
-        rule.selector.indexOf("(") === -1 ||
-        rule.selector.includes(":global(")
-      ) {
+    if (rule.parent.type !== 'atrule' || !/keyframes$/.test(rule.parent.name)) {
+      if (rule.selector.indexOf('(') === -1 || rule.selector.includes(':global(')) {
         callback(rule);
       }
     }
   });
-  const lessFile = less.source.input.file.split("src/")[1];
-  less.prepend(
-    postcss.comment({ text: `\n  Convert to from  src/${lessFile}\n` })
-  );
+  const lessFile = less.source.input.file.split('src/')[1];
+  less.prepend(postcss.comment({ text: `\n  Convert to from  src/${lessFile}\n` }));
 };
 
 const trimNodes = nodes => {
-  const firstIndex = nodes.findIndex(node => node.type !== "spacing");
+  const firstIndex = nodes.findIndex(node => node.type !== 'spacing');
   const lastIndex = nodes
     .slice()
     .reverse()
-    .findIndex(node => node.type !== "spacing");
+    .findIndex(node => node.type !== 'spacing');
   return nodes.slice(firstIndex, nodes.length - lastIndex);
 };
 
-const isSpacing = node => node.type === "spacing" || node.type === "operator";
+const isSpacing = node => node.type === 'spacing' || node.type === 'operator';
 
 const isModifier = node =>
-  node.type === "pseudo-class" &&
-  (node.name === "local" || node.name === "global");
+  node.type === 'pseudo-class' && (node.name === 'local' || node.name === 'global');
 
 function localizeNode(node, { mode, inside, getAlias }) {
   const newNodes = node.nodes.reduce((acc, n, index, nodes) => {
     switch (n.type) {
-      case "spacing":
+      case 'spacing':
         if (isModifier(nodes[index + 1])) {
-          return [...acc, Object.assign({}, n, { value: "" })];
+          return [...acc, Object.assign({}, n, { value: '' })];
         }
         return [...acc, n];
 
-      case "operator":
+      case 'operator':
         if (isModifier(nodes[index + 1])) {
-          return [...acc, Object.assign({}, n, { after: "" })];
+          return [...acc, Object.assign({}, n, { after: '' })];
         }
         return [...acc, n];
 
-      case "pseudo-class":
+      case 'pseudo-class':
         if (isModifier(n)) {
           if (inside) {
-            throw Error(
-              `A :${n.name} is not allowed inside of a :${inside}(...)`
-            );
+            throw Error(`A :${n.name} is not allowed inside of a :${inside}(...)`);
           }
           if (index !== 0 && !isSpacing(nodes[index - 1])) {
             throw Error(`Missing whitespace before :${n.name}`);
@@ -81,33 +73,31 @@ function localizeNode(node, { mode, inside, getAlias }) {
         }
         return [...acc, n];
 
-      case "nested-pseudo-class":
-        if (n.name === "local" || n.name === "global") {
+      case 'nested-pseudo-class':
+        if (n.name === 'local' || n.name === 'global') {
           if (inside) {
-            throw Error(
-              `A :${n.name}(...) is not allowed inside of a :${inside}(...)`
-            );
+            throw Error(`A :${n.name}(...) is not allowed inside of a :${inside}(...)`);
           }
           return [
             ...acc,
             ...localizeNode(n.nodes[0], {
               mode: n.name,
               inside: n.name,
-              getAlias
-            }).nodes
+              getAlias,
+            }).nodes,
           ];
         } else {
           return [
             ...acc,
             Object.assign({}, n, {
-              nodes: localizeNode(n.nodes[0], { mode, inside, getAlias }).nodes
-            })
+              nodes: localizeNode(n.nodes[0], { mode, inside, getAlias }).nodes,
+            }),
           ];
         }
 
-      case "id":
-      case "class":
-        if (mode === "local") {
+      case 'id':
+      case 'class':
+        if (mode === 'local') {
           return [...acc, Object.assign({}, n, { name: getAlias(n.name) })];
         }
         return [...acc, n];
@@ -124,20 +114,19 @@ const localizeSelectors = (selectors, mode, getAlias) => {
   const node = Tokenizer.parse(selectors);
   return Tokenizer.stringify(
     Object.assign({}, node, {
-      nodes: node.nodes.map(n => localizeNode(n, { mode, getAlias }))
-    })
+      nodes: node.nodes.map(n => localizeNode(n, { mode, getAlias })),
+    }),
   );
 };
 const getValue = (messages, name) =>
-  messages.find(msg => msg.type === "icss-value" && msg.value === name);
+  messages.find(msg => msg.type === 'icss-value' && msg.value === name);
 
 const isRedeclared = (messages, name) =>
-  messages.find(msg => msg.type === "icss-scoped" && msg.name === name);
+  messages.find(msg => msg.type === 'icss-scoped' && msg.name === name);
 
-const LocalIdentNameplugin = postcss.plugin("LocalIdentNameplugin", options => {
+const LocalIdentNameplugin = postcss.plugin('LocalIdentNameplugin', options => {
   const generateScopedName =
-    options.generateScopedName ||
-    genericNames("[name]__[local]---[hash:base64:5]");
+    options.generateScopedName || genericNames('[name]__[local]---[hash:base64:5]');
   const aliases = {};
   return (less, result) => {
     walkRules(less, rule => {
@@ -163,11 +152,11 @@ const LocalIdentNameplugin = postcss.plugin("LocalIdentNameplugin", options => {
         // 如果为 less mixin  variable  params 不需要处理
         const selector = localizeSelectors(
           rule.selector,
-          options.mode === "global" ? "global" : "local",
-          getAlias
+          options.mode === 'global' ? 'global' : 'local',
+          getAlias,
         );
         if (selector) {
-          if (selector.includes(":global(")) {
+          if (selector.includes(':global(')) {
             // converted :global(.className）
             const className = selector.match(/:global\((\S*)\)/)[1];
             rule.selector = className;
@@ -197,12 +186,12 @@ const AddlocalIdentName = (lessPath, lessText) => {
     LocalIdentNameplugin({
       generateScopedName: className => {
         return getLocalIdentName(lessPath) + className;
-      }
-    })
+      },
+    }),
   ])
     .process(lessText, {
       from: lessPath,
-      syntax
+      syntax,
     })
     .then(result => {
       result.messages = uniqBy(fileNameList);
