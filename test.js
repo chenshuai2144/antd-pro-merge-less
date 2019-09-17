@@ -1,4 +1,4 @@
-const genCss = require('./genCss');
+const genCss = require('./index');
 
 genCss([
   {
