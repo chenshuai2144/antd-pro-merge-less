@@ -12,7 +12,7 @@ const loopAllLess = async parents => {
   let importFileList = [];
   const lessDir = path.join(parents, '**/**.less');
   glob
-    .sync(lessDir, { ignore: '**/node_modules/**' })
+    .sync(lessDir, { ignore: ['**/node_modules/**', '**/lib/**', '**/es/**'] })
     .filter(
       filePath => !filePath.includes('ant.design.pro.less') && !filePath.includes('global.less'),
     )

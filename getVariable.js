@@ -17,7 +17,13 @@ function discardAndReport(less, result) {
       ((type === 'rule' && !node.selector) || (sub && !sub.length)) ||
       (type === 'atrule' && ((!sub && !node.params) || (!node.params && !sub.length)))
     ) {
-      node.remove();
+      if (
+        (node.selector && (node.toString().includes('(') && node.selector.indexOf('.') === 0)) ||
+        (node.toString().includes('@') && !node.toString().includes('{'))
+      ) {
+      } else {
+        node.remove();
+      }
 
       result.messages.push({
         type: 'removal',
@@ -35,13 +41,13 @@ const LocalIdentNamePlugin = postcss.plugin('LocalIdentNamePlugin', options => {
       if (atRule.import) {
         atRule.remove();
       }
-      if (atRule.mixin) {
-        atRule.remove();
-      }
     });
     less.walkDecls(decls => {
       const content = decls.toString();
-      if (!content.includes('@')) {
+      if (
+        (!content.includes('@') && !content.includes('border')) ||
+        (content.includes('padding') || content.includes('margin'))
+      ) {
         decls.remove();
       }
     });

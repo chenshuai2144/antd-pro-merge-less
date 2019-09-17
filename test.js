@@ -4,7 +4,7 @@ const fs = require('fs');
 const callback = () => {
   console.log('finish');
 };
-loopAllLess('/Users/qixian.cs/Documents/GitHub/ant-design/components/').then(
+loopAllLess('/Users/qixian.cs/Documents/GitHub/ant-design/').then(
   content => {
     fs.writeFileSync(
       './function/color/antd-variable.less',
