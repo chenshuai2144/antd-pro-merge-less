@@ -58,7 +58,7 @@ const LocalIdentNamePlugin = postcss.plugin('LocalIdentNamePlugin', options => {
   };
 });
 
-const AddLocalIdentName = (lessPath, lessText) => {
+const getVariable = (lessPath, lessText) => {
   lessPath = lessPath;
   return postcss([LocalIdentNamePlugin()])
     .process(lessText, {
@@ -71,4 +71,4 @@ const AddLocalIdentName = (lessPath, lessText) => {
     });
 };
 
-module.exports = AddLocalIdentName;
+module.exports = getVariable;
