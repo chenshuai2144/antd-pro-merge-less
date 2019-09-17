@@ -97,8 +97,8 @@ const renderLess = (theme, modifyVars) => {
     });
 };
 
-module.exports = async modifyVarsArray => {
-  await genProjectLess('/Users/qixian.cs/Documents/GitHub/ant-design-pro');
+module.exports = async (cwd, modifyVarsArray) => {
+  await genProjectLess(cwd);
   modifyVarsArray.map(async ({ theme, modifyVars, fileName }) => {
     const css = await renderLess(theme, modifyVars);
     fs.writeFileSync(fileName, css);
