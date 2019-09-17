@@ -21,7 +21,6 @@ yarn.lock
 package-lock.json
 *bak
 jsconfig.json
-.vscode
 
 # visual studio code
 .history
@@ -34,3 +33,5 @@ functions/mock
 .umi
 .umi-production
 
+antdPro.less
+antdPro.less
