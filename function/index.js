@@ -3,10 +3,11 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = async function(context, req) {
+  const { theme, modifyVars } = req.query;
   try {
     const body = await less
       .render(fs.readFileSync('./color/antdPro.less', 'utf-8'), {
-        modifyVars: req.query,
+        modifyVars,
         javascriptEnabled: true,
         filename: path.resolve('./color/antdPro.less'),
       })
