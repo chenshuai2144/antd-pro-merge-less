@@ -1,21 +1,29 @@
 const loopAllLess = require('./loopAllLess');
 const fs = require('fs');
+const path = require('path');
 
 const callback = () => {
   console.log('finish');
 };
-loopAllLess('/Users/qixian.cs/Documents/GitHub/ant-design/').then(
-  content => {
-    fs.writeFileSync(
-      './function/color/antd-variable.less',
-      `@import 'bezierEasing';
-    @import 'colorPalette';
-    @import "tinyColor";
+
+loopAllLess(path.resolve('./node_modules/antd/es/'), []).then(content => {
+  fs.writeFileSync(
+    './function/color/variable.less',
+    `@import 'bezierEasing';
+       @import 'colorPalette';
+       @import "tinyColor";
     ${content}
     `,
-    );
-  },
-  e => {
-    callback();
-  },
-);
+  );
+});
+
+loopAllLess('/Users/qixian.cs/Documents/GitHub/ant-design-pro').then(content => {
+  fs.writeFileSync(
+    './function/color/pro.less',
+    `@import 'bezierEasing';
+       @import 'colorPalette';
+       @import "tinyColor";
+    ${content}
+    `,
+  );
+});

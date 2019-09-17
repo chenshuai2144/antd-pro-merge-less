@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/chenshuai2144/merge-cssMoudle-less#readme",
   "dependencies": {
+    "antd": "^3.23.3",
     "css-selector-tokenizer": "^0.7.1",
     "fs-extra": "^7.0.0",
     "generic-names": "^2.0.1",

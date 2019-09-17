@@ -7,12 +7,12 @@ const uniqBy = require('lodash.uniqby');
 const prettier = require('prettier');
 
 // read less file list
-const loopAllLess = async parents => {
+const loopAllLess = async (parents, ignore = ['**/node_modules/**', '**/lib/**', '**/es/**']) => {
   const promiseList = [];
   let importFileList = [];
   const lessDir = path.join(parents, '**/**.less');
   glob
-    .sync(lessDir, { ignore: ['**/node_modules/**', '**/lib/**', '**/es/**'] })
+    .sync(lessDir, { ignore })
     .filter(
       filePath => !filePath.includes('ant.design.pro.less') && !filePath.includes('global.less'),
     )

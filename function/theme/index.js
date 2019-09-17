@@ -119,10 +119,10 @@ module.exports = async function(context, req) {
   const { theme, modifyVars } = req.query;
   try {
     const body = await less
-      .render(fs.readFileSync('./color/antd-variable.less', 'utf-8'), {
+      .render(fs.readFileSync('./color/variable.less', 'utf-8'), {
         modifyVars: getModifyVars(theme, modifyVars),
         javascriptEnabled: true,
-        filename: path.resolve('./color/antd-variable.less'),
+        filename: path.resolve('./color/variable.less'),
       })
       .then(out => out.css);
     context.res = {
