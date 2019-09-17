@@ -90,14 +90,16 @@ const defaultDark = {
   '@site-text-color': '@menu-item-color',
   '@site-border-color-split': 'fade(@light, 5)',
   '@site-heading-color': '@heading-color',
-  '@site-header-box-shadow':
-    ' 0 0.3px 0.9px rgba(0, 0, 0, 0.12), 0 1.6px 3.6px rgba(0, 0, 0, 0.12)',
+  '@site-header-box-shadow': '0 0.3px 0.9px rgba(0, 0, 0, 0.12), 0 1.6px 3.6px rgba(0, 0, 0, 0.12)',
   '@home-text-color': '@menu-item-color',
 
   //自定义需要找设计师
   '@gray-8': '@text-color',
   '@background-color-base': '#555',
   '@skeleton-color': 'rgba(0,0,0,0.8)',
+
+  // pro
+  '@pro-header-box-shadow': '0 0.3px 0.9px rgba(0, 0, 0, 0.12), 0 1.6px 3.6px rgba(0, 0, 0, 0.12)',
 };
 
 const getModifyVars = (theme = 'light', modifyVarsString = '{}') => {
@@ -119,10 +121,10 @@ module.exports = async function(context, req) {
   const { theme, modifyVars } = req.query;
   try {
     const body = await less
-      .render(fs.readFileSync('./color/variable.less', 'utf-8'), {
+      .render(fs.readFileSync('./color/pro.less', 'utf-8'), {
         modifyVars: getModifyVars(theme, modifyVars),
         javascriptEnabled: true,
-        filename: path.resolve('./color/variable.less'),
+        filename: path.resolve('./color/pro.less'),
       })
       .then(out => out.css);
     context.res = {
