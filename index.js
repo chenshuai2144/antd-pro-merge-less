@@ -5,8 +5,9 @@ const less = require('less');
 const genModuleLess = require('./genModuleLess');
 const rimraf = require('rimraf');
 const darkTheme = require('@ant-design/dark-theme');
+const { winPath } = require('umi-utils');
 
-let tempPath = path.join(__dirname, './.temp/');
+let tempPath = winPath(path.join(__dirname, './.temp/'));
 
 const loadAntd = async () => {
   if (fs.existsSync('./node_modules/antd/es/index.js')) {
