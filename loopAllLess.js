@@ -11,6 +11,8 @@ const loopAllLess = async (parents, ignore = ['**/node_modules/**', '**/lib/**',
   const promiseList = [];
   let importFileList = [];
   const lessDir = path.join(parents, '**/**.less');
+  console.log(lessDir);
+
   glob
     .sync(lessDir, { ignore })
     .filter(
@@ -46,11 +48,7 @@ const loopAllLess = async (parents, ignore = ['**/node_modules/**', '**/lib/**',
       );
     });
   const lessContentArray = await Promise.all(promiseList);
-  importFileList = deleteRelativePath(
-    uniqBy(importFileList).map(file => {
-      return `@import ${file};`;
-    }),
-  );
+  importFileList = deleteRelativePath(uniqBy(importFileList).map(file => `@import ${file};`));
   const content = importFileList.concat(lessContentArray).join(';\n \n');
 
   return Promise.resolve(

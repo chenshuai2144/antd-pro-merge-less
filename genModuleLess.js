@@ -16,7 +16,7 @@ const genModuleLess = parents => {
   const antdLessPath = path.join(require.resolve('antd'), '../style/themes/default.less');
   lessArray = [`@import "${antdLessPath}";`];
   glob
-    .sync(parents + '/**/**.less', { ignore: '**/node_modules/**' })
+    .sync(`${parents}/**/**.less`, { ignore: '**/node_modules/**' })
     .filter(
       filePath => !filePath.includes('ant.design.pro.less') && !filePath.includes('global.less'),
     )
@@ -26,9 +26,7 @@ const genModuleLess = parents => {
       // push less file
       promiseList.push(AddLocalIdentName(realPath, fileContent, getLocalIdentName(realPath)));
     });
-  return Promise.all(promiseList).then(content => {
-    return lessArray.concat(content).join('\n');
-  });
+  return Promise.all(promiseList).then(content => lessArray.concat(content).join('\n'));
 };
 
 module.exports = genModuleLess;
