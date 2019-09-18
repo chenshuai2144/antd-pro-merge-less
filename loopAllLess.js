@@ -11,7 +11,6 @@ const loopAllLess = async (parents, ignore = ['**/node_modules/**', '**/lib/**',
   const promiseList = [];
   let importFileList = [];
   const lessDir = path.join(parents, '**/**.less');
-  console.log(lessDir);
 
   glob
     .sync(lessDir, { ignore })
