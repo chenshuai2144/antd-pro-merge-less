@@ -84,7 +84,6 @@ const genProjectLess = filePath => {
 };
 
 const renderLess = (theme, modifyVars) => {
-  console.log(getModifyVars(theme, modifyVars));
   return less
     .render(fs.readFileSync('./.temp/pro.less', 'utf-8'), {
       modifyVars: getModifyVars(theme, modifyVars),
@@ -97,10 +96,12 @@ const renderLess = (theme, modifyVars) => {
     });
 };
 
-module.exports = async (cwd, modifyVarsArray) => {
+const build = async (cwd, modifyVarsArray) => {
   await genProjectLess(cwd);
   modifyVarsArray.map(async ({ theme, modifyVars, fileName }) => {
     const css = await renderLess(theme, modifyVars);
     fs.writeFileSync(fileName, css);
   });
 };
+
+module.exports = build;

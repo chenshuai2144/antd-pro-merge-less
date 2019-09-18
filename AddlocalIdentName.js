@@ -180,7 +180,7 @@ const LocalIdentNameplugin = postcss.plugin('LocalIdentNameplugin', options => {
   };
 });
 
-const AddlocalIdentName = (lessPath, lessText) => {
+const AddLocalIdentName = (lessPath, lessText) => {
   lessPath = lessPath;
   return postcss([
     LocalIdentNameplugin({
