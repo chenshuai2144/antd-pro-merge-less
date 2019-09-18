@@ -3,9 +3,16 @@ const fs = require('fs');
 const path = require('path');
 const less = require('less');
 const genModuleLess = require('./genModuleLess');
-const rimraf = require('rimraf');
 const darkTheme = require('@ant-design/dark-theme');
 const { winPath } = require('umi-utils');
+const hash = require('hash.js');
+const uglifycss = require('uglifycss');
+
+const genHashCode = content =>
+  hash
+    .sha256()
+    .update(content)
+    .digest('hex');
 
 const tempPath = winPath(path.join(__dirname, './.temp/'));
 
@@ -66,12 +73,30 @@ const getModifyVars = (theme = 'light', modifyVars) => {
   }
 };
 
+const getOldFile = path => {
+  if (fs.existsSync(path)) {
+    return fs.readFileSync(path);
+  }
+  return false;
+};
+
+let isEqual = false;
+
 const genProjectLess = filePath =>
   genModuleLess(filePath).then(async content => {
-    if (fs.existsSync(tempPath)) {
-      rimraf.sync(tempPath);
+    if (!fs.existsSync(tempPath)) {
+      fs.mkdirSync(tempPath);
     }
-    fs.mkdirSync(tempPath);
+
+    // 获取新旧文件的 hash
+    const newFileHash = genHashCode(content);
+
+    const oldFileHash = genHashCode(getOldFile(path.join(tempPath, 'temp.less')));
+    if (newFileHash === oldFileHash) {
+      isEqual = true;
+      // 无需重复生成
+      return true;
+    }
 
     fs.writeFileSync(path.join(tempPath, 'temp.less'), content);
 
@@ -91,26 +116,51 @@ const genProjectLess = filePath =>
     return true;
   });
 
-const renderLess = (theme, modifyVars) => {
-  const proLess = path.join(tempPath, './pro.less');
-  return less
-    .render(fs.readFileSync(proLess, 'utf-8'), {
-      modifyVars: getModifyVars(theme, modifyVars),
-      javascriptEnabled: true,
-      filename: path.resolve(proLess),
-    })
-    .then(out => out.css)
-    .catch(e => {
-      console.log(e);
-    });
+const modifyVarsIsEqual = (modifyVarsArray = '') => {
+  const modifyVarsArrayString = JSON.stringify(modifyVarsArray);
+
+  const modifyVarsArrayPath = path.join(tempPath, 'modifyVarsArray.json');
+  const old = getOldFile(modifyVarsArrayPath);
+  if (genHashCode(old) === genHashCode(modifyVarsArrayString) && isEqual) {
+    console.log('📸  less and modifyVarsArray is equal!');
+    return true;
+  }
+  fs.writeFileSync(modifyVarsArrayPath, modifyVarsArrayString);
+  return false;
 };
 
-const build = async (cwd, modifyVarsArray) => {
-  await genProjectLess(cwd);
-  modifyVarsArray.map(async ({ theme, modifyVars, fileName }) => {
-    const css = await renderLess(theme, modifyVars);
-    fs.writeFileSync(fileName, css);
-  });
+const renderLess = (theme, modifyVars, { min = true }) => {
+  const proLess = path.join(tempPath, './pro.less');
+
+  return (
+    less
+      .render(fs.readFileSync(proLess, 'utf-8'), {
+        modifyVars: getModifyVars(theme, modifyVars),
+        javascriptEnabled: true,
+        filename: path.resolve(proLess),
+      })
+      // 如果需要压缩，再打开压缩功能默认打开
+      .then(out => (min ? uglifycss.processString(out.css) : out.css))
+      .catch(e => {
+        console.log(e);
+      })
+  );
+};
+
+const build = async (cwd, modifyVarsArray, option = {}) => {
+  try {
+    await genProjectLess(cwd);
+    if (modifyVarsIsEqual(modifyVarsArray)) {
+      return;
+    }
+
+    modifyVarsArray.map(async ({ theme, modifyVars, fileName }) => {
+      const css = await renderLess(theme, modifyVars, option);
+      fs.writeFileSync(fileName, css);
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 module.exports = build;
