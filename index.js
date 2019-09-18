@@ -5,6 +5,7 @@ const less = require('less');
 const genModuleLess = require('./genModuleLess');
 const darkTheme = require('@ant-design/dark-theme');
 const { winPath } = require('umi-utils');
+const getVariable = require('./getVariable');
 const hash = require('hash.js');
 const uglifycss = require('uglifycss');
 
@@ -88,20 +89,26 @@ const genProjectLess = filePath =>
       fs.mkdirSync(tempPath);
     }
 
+    const tempFilePath = path.join(tempPath, 'temp.less');
+
     // 获取新旧文件的 hash
     const newFileHash = genHashCode(content);
 
-    const oldFileHash = genHashCode(getOldFile(path.join(tempPath, 'temp.less')));
+    const oldFileHash = genHashCode(getOldFile(tempFilePath));
     if (newFileHash === oldFileHash) {
       isEqual = true;
       // 无需重复生成
       return true;
     }
 
-    fs.writeFileSync(path.join(tempPath, 'temp.less'), content);
+    fs.writeFileSync(tempFilePath, content);
 
     try {
-      const lessContent = await loopAllLess(tempPath, []);
+      const lessContent = await getVariable(tempFilePath, fs.readFileSync(tempFilePath)).then(
+        result => {
+          return result.content.toString();
+        },
+      );
       fs.writeFileSync(
         path.join(tempPath, 'pro.less'),
         `@import 'layout';
@@ -148,6 +155,7 @@ const renderLess = (theme, modifyVars, { min = true }) => {
 };
 
 const build = async (cwd, modifyVarsArray, option = {}) => {
+  isEqual = false;
   try {
     await genProjectLess(cwd);
     if (modifyVarsIsEqual(modifyVarsArray)) {
