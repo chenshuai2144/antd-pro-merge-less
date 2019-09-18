@@ -6,11 +6,13 @@ const genModuleLess = require('./genModuleLess');
 const rimraf = require('rimraf');
 const darkTheme = require('@ant-design/dark-theme');
 
+let tempPath = path.join(__dirname, './.temp/');
+
 const loadAntd = async () => {
   if (fs.existsSync('./node_modules/antd/es/index.js')) {
     await loopAllLess(path.resolve('./node_modules/antd/es/'), []).then(content => {
       fs.writeFileSync(
-        './.temp/antd.less',
+        path.join(tempPath, './antd.less'),
         `@import '../color/bezierEasing';
   @import '../color/colorPalette';
   @import "../color/tinyColor";
@@ -21,6 +23,13 @@ const loadAntd = async () => {
     return true;
   }
 
+  fs.writeFileSync(
+    path.join(tempPath, './antd.less'),
+    `@import '../color/bezierEasing';
+@import '../color/colorPalette';
+@import "../color/tinyColor";
+    `,
+  );
   return false;
 };
 
@@ -29,7 +38,7 @@ const loadAntdProLayout = async () => {
     await loopAllLess(path.resolve('./node_modules/@ant-design/pro-layout/es/'), []).then(
       content => {
         fs.writeFileSync(
-          './.temp/layout.less',
+          path.join(tempPath, '/layout.less'),
           `@import 'antd';
   ${content}
       `,
@@ -38,7 +47,7 @@ const loadAntdProLayout = async () => {
     );
     return true;
   }
-  fs.writeFileSync('./.temp/layout.less', `@import 'antd';`);
+  fs.writeFileSync(path.join(tempPath, '/layout.less'), `@import 'antd';`);
   return false;
 };
 
@@ -58,18 +67,17 @@ const getModifyVars = (theme = 'light', modifyVars) => {
 
 const genProjectLess = filePath => {
   return genModuleLess(filePath).then(async content => {
-    if (fs.existsSync('./.temp')) {
-      rimraf.sync('./.temp');
+    if (fs.existsSync(tempPath)) {
+      rimraf.sync(tempPath);
     }
-    fs.mkdirSync('./.temp');
+    fs.mkdirSync(tempPath);
 
-    const tempPath = path.join(__dirname, './.temp/');
     fs.writeFileSync(path.join(tempPath, 'temp.less'), content);
 
     try {
       const lessContent = await loopAllLess(tempPath);
       fs.writeFileSync(
-        './.temp/pro.less',
+        path.join(tempPath, 'pro.less'),
         `@import 'layout';
     ${lessContent}`,
       );
@@ -84,11 +92,12 @@ const genProjectLess = filePath => {
 };
 
 const renderLess = (theme, modifyVars) => {
+  let proLess = path.join(tempPath, './pro.less');
   return less
-    .render(fs.readFileSync('./.temp/pro.less', 'utf-8'), {
+    .render(fs.readFileSync(proLess, 'utf-8'), {
       modifyVars: getModifyVars(theme, modifyVars),
       javascriptEnabled: true,
-      filename: path.resolve('./.temp/pro.less'),
+      filename: path.resolve(proLess),
     })
     .then(out => out.css)
     .catch(e => {

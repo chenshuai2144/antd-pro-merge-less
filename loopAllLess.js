@@ -36,11 +36,11 @@ const loopAllLess = async (parents, ignore = ['**/node_modules/**', '**/lib/**',
             return result.content.toString();
           },
           err => {
-            console.log(
-              `
-文件： ${err.file} 报错，
-错误原因： ${err.name}`,
-            );
+            //             console.log(
+            //               `
+            // 文件： ${err.file} 报错，
+            // 错误原因： ${err.name}`,
+            //             );
           },
         ),
       );
