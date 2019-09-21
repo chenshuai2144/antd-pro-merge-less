@@ -180,11 +180,14 @@ const LocalIdentNameplugin = postcss.plugin('LocalIdentNameplugin', options => {
   };
 });
 
-const AddLocalIdentName = (lessPath, lessText) => {
+const AddLocalIdentName = (lessPath, lessText, isModule) => {
   lessPath = lessPath;
   return postcss([
     LocalIdentNameplugin({
       generateScopedName: className => {
+        if (!isModule) {
+          return className;
+        }
         return getLocalIdentName(lessPath) + className;
       },
     }),

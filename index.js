@@ -18,20 +18,22 @@ const genHashCode = content =>
 const tempPath = winPath(path.join(__dirname, './.temp/'));
 
 const loadAntd = async () => {
-  const antdPath = require.resolve('antd');
-  if (fs.existsSync(antdPath)) {
-    await loopAllLess(path.resolve(path.join(antdPath, '../../es/')), []).then(content => {
-      fs.writeFileSync(
-        path.join(tempPath, './antd.less'),
-        `@import '../color/bezierEasing';
-  @import '../color/colorPalette';
-  @import "../color/tinyColor";
-  ${content}
-        `,
-      );
-    });
-    return true;
-  }
+  try {
+    const antdPath = require.resolve('antd');
+    if (fs.existsSync(antdPath)) {
+      await loopAllLess(path.resolve(path.join(antdPath, '../../es/')), []).then(content => {
+        fs.writeFileSync(
+          path.join(tempPath, './antd.less'),
+          `@import '../color/bezierEasing';
+    @import '../color/colorPalette';
+    @import "../color/tinyColor";
+    ${content}
+          `,
+        );
+      });
+      return true;
+    }
+  } catch (error) {}
 
   fs.writeFileSync(
     path.join(tempPath, './antd.less'),
@@ -44,18 +46,21 @@ const loadAntd = async () => {
 };
 
 const loadAntdProLayout = async () => {
-  const LayoutPath = require.resolve('@ant-design/pro-layout');
-  if (fs.existsSync(LayoutPath)) {
-    await loopAllLess(path.resolve(path.join(LayoutPath, '../../es/')), []).then(content => {
-      fs.writeFileSync(
-        path.join(tempPath, '/layout.less'),
-        `@import 'antd';
-  ${content}
-      `,
-      );
-    });
-    return true;
-  }
+  try {
+    const LayoutPath = require.resolve('@ant-design/pro-layout');
+    if (fs.existsSync(LayoutPath)) {
+      await loopAllLess(path.resolve(path.join(LayoutPath, '../../es/')), []).then(content => {
+        fs.writeFileSync(
+          path.join(tempPath, '/layout.less'),
+          `@import 'antd';
+    ${content}
+        `,
+        );
+      });
+      return true;
+    }
+  } catch (error) {}
+
   fs.writeFileSync(path.join(tempPath, '/layout.less'), "@import 'antd';");
   return false;
 };
@@ -83,13 +88,13 @@ const getOldFile = path => {
 
 let isEqual = false;
 
-const genProjectLess = filePath =>
-  genModuleLess(filePath).then(async content => {
+const genProjectLess = (filePath, isModule) =>
+  genModuleLess(filePath, isModule).then(async content => {
     if (!fs.existsSync(tempPath)) {
       fs.mkdirSync(tempPath);
     }
 
-    const tempFilePath = path.join(tempPath, 'temp.less');
+    const tempFilePath = winPath(path.join(tempPath, 'temp.less'));
 
     // 获取新旧文件的 hash
     const newFileHash = genHashCode(content);
@@ -110,12 +115,12 @@ const genProjectLess = filePath =>
         },
       );
       fs.writeFileSync(
-        path.join(tempPath, 'pro.less'),
+        winPath(path.join(tempPath, 'pro.less')),
         `@import 'layout';
-    ${lessContent}`,
+${lessContent}`,
       );
     } catch (error) {
-      console.log(error);
+      console.log(error.name, error.file, `line: ${error.line}`);
     }
 
     await loadAntd();
@@ -136,9 +141,11 @@ const modifyVarsIsEqual = (modifyVarsArray = '') => {
   return false;
 };
 
-const renderLess = (theme, modifyVars, { min = true }) => {
-  const proLess = path.join(tempPath, './pro.less');
-
+const renderLess = (theme, modifyVars, { min = true, isModule = true }) => {
+  const proLess = winPath(path.join(tempPath, './pro.less'));
+  if (!fs.existsSync(proLess)) {
+    return;
+  }
   return (
     less
       .render(fs.readFileSync(proLess, 'utf-8'), {
@@ -157,7 +164,7 @@ const renderLess = (theme, modifyVars, { min = true }) => {
 const build = async (cwd, modifyVarsArray, option = {}) => {
   isEqual = false;
   try {
-    await genProjectLess(cwd);
+    await genProjectLess(cwd, option.isModule);
     if (modifyVarsIsEqual(modifyVarsArray)) {
       return;
     }

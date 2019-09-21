@@ -8,23 +8,28 @@ const glob = require('glob');
 const getLocalIdentName = require('./getLocalIdentName');
 const AddLocalIdentName = require('./AddLocalIdentName');
 const replaceDefaultLess = require('./replaceDefaultLess');
+const { winPath } = require('umi-utils');
 
 // read less file list
-const genModuleLess = parents => {
+const genModuleLess = (parents, isModule) => {
   let lessArray = [];
   const promiseList = [];
-  const antdLessPath = path.join(require.resolve('antd'), '../style/themes/default.less');
-  lessArray = [`@import "${antdLessPath}";`];
+  lessArray = [];
   glob
-    .sync(`${parents}/**/**.less`, { ignore: '**/node_modules/**' })
+    .sync(winPath(`${parents}/**/**.less`), { ignore: ['**/node_modules/**', '**/_site/**'] })
     .filter(
-      filePath => !filePath.includes('ant.design.pro.less') && !filePath.includes('global.less'),
+      filePath =>
+        !filePath.includes('ant.design.pro.less') &&
+        !filePath.includes('global.less') &&
+        !filePath.includes('bezierEasing.less') &&
+        !filePath.includes('colorPalette.less') &&
+        !filePath.includes('tinyColor.less'),
     )
     .forEach(realPath => {
       // post css add localIdentNamePlugin
       const fileContent = replaceDefaultLess(realPath);
-      // push less file
-      promiseList.push(AddLocalIdentName(realPath, fileContent, getLocalIdentName(realPath)));
+
+      promiseList.push(AddLocalIdentName(realPath, fileContent, isModule));
     });
   return Promise.all(promiseList).then(content => lessArray.concat(content).join('\n'));
 };
