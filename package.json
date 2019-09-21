@@ -1,6 +1,6 @@
 {
   "name": "antd-pro-merge-less",
-  "version": "2.0.8",
+  "version": "2.0.10",
   "description": "A webpack plugin for ant design pro less",
   "main": "index.js",
   "scripts": {
