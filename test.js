@@ -17,5 +17,8 @@ genCss(
   {
     min: false,
     // isModule: false,
+    ignoreAntd: true,
+    ignoreProLayout: true,
+    cache: false,
   },
 );

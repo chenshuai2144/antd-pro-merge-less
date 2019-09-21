@@ -7,6 +7,7 @@ const darkTheme = require('@ant-design/dark-theme');
 const { winPath } = require('umi-utils');
 const getVariable = require('./getVariable');
 const hash = require('hash.js');
+const rimraf = require('rimraf');
 const uglifycss = require('uglifycss');
 
 const genHashCode = content =>
@@ -17,21 +18,23 @@ const genHashCode = content =>
 
 const tempPath = winPath(path.join(__dirname, './.temp/'));
 
-const loadAntd = async () => {
+const loadAntd = async ignoreAntd => {
   try {
-    const antdPath = require.resolve('antd');
-    if (fs.existsSync(antdPath)) {
-      await loopAllLess(path.resolve(path.join(antdPath, '../../es/')), []).then(content => {
-        fs.writeFileSync(
-          path.join(tempPath, './antd.less'),
-          `@import '../color/bezierEasing';
-    @import '../color/colorPalette';
-    @import "../color/tinyColor";
-    ${content}
-          `,
-        );
-      });
-      return true;
+    if (!ignoreAntd) {
+      const antdPath = require.resolve('antd');
+      if (fs.existsSync(antdPath)) {
+        await loopAllLess(path.resolve(path.join(antdPath, '../../es/')), []).then(content => {
+          fs.writeFileSync(
+            path.join(tempPath, './antd.less'),
+            `@import '../color/bezierEasing';
+      @import '../color/colorPalette';
+      @import "../color/tinyColor";
+      ${content}
+            `,
+          );
+        });
+        return true;
+      }
     }
   } catch (error) {}
 
@@ -45,19 +48,21 @@ const loadAntd = async () => {
   return false;
 };
 
-const loadAntdProLayout = async () => {
+const loadAntdProLayout = async ignoreProLayout => {
   try {
-    const LayoutPath = require.resolve('@ant-design/pro-layout');
-    if (fs.existsSync(LayoutPath)) {
-      await loopAllLess(path.resolve(path.join(LayoutPath, '../../es/')), []).then(content => {
-        fs.writeFileSync(
-          path.join(tempPath, '/layout.less'),
-          `@import 'antd';
+    if (ignoreProLayout) {
+      const LayoutPath = require.resolve('@ant-design/pro-layout');
+      if (fs.existsSync(LayoutPath)) {
+        await loopAllLess(path.resolve(path.join(LayoutPath, '../../es/')), []).then(content => {
+          fs.writeFileSync(
+            path.join(tempPath, '/layout.less'),
+            `@import 'antd';
     ${content}
         `,
-        );
-      });
-      return true;
+          );
+        });
+        return true;
+      }
     }
   } catch (error) {}
 
@@ -88,8 +93,11 @@ const getOldFile = path => {
 
 let isEqual = false;
 
-const genProjectLess = (filePath, isModule) =>
+const genProjectLess = (filePath, { isModule, cache, ignoreAntd, ignoreProLayout }) =>
   genModuleLess(filePath, isModule).then(async content => {
+    if (!cache) {
+      rimraf.sync(tempPath);
+    }
     if (!fs.existsSync(tempPath)) {
       fs.mkdirSync(tempPath);
     }
@@ -123,8 +131,8 @@ ${lessContent}`,
       console.log(error.name, error.file, `line: ${error.line}`);
     }
 
-    await loadAntd();
-    await loadAntdProLayout();
+    await loadAntd(ignoreAntd);
+    await loadAntdProLayout(ignoreProLayout);
     return true;
   });
 
@@ -141,7 +149,7 @@ const modifyVarsIsEqual = (modifyVarsArray = '') => {
   return false;
 };
 
-const renderLess = (theme, modifyVars, { min = true, isModule = true }) => {
+const renderLess = (theme, modifyVars, { min = true }) => {
   const proLess = winPath(path.join(tempPath, './pro.less'));
   if (!fs.existsSync(proLess)) {
     return;
@@ -161,10 +169,10 @@ const renderLess = (theme, modifyVars, { min = true, isModule = true }) => {
   );
 };
 
-const build = async (cwd, modifyVarsArray, option = {}) => {
+const build = async (cwd, modifyVarsArray, option = { isModule: true, cache: true }) => {
   isEqual = false;
   try {
-    await genProjectLess(cwd, option.isModule);
+    await genProjectLess(cwd, option);
     if (modifyVarsIsEqual(modifyVarsArray)) {
       return;
     }
