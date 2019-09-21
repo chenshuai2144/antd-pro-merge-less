@@ -2,13 +2,34 @@
 
 使用方式：
 
-```
-// 将所有 less 合并为一个供 themePlugin使用
-  const outFile = path.join(__dirname, './.temp/ant-design-pro.less');
-  const stylesDir = path.join(__dirname, './src/');
+```js
+const genCss = require('antd-pro-merge-less');
 
-  const mergeLessPlugin = new MergeLessPlugin({
-    stylesDir,
-    outFile,
-  });
+genCss(
+  'C:/GitHub/ant-design',
+  [
+    {
+      theme: 'dark',
+      fileName: './.temp/dark.css',
+    },
+    {
+      fileName: './.temp/mingQing.css',
+      modifyVars: {
+        '@primary-color': '#13C2C2',
+      },
+    },
+  ],
+  {
+    // 是否压缩css
+    min: false,
+    // css module
+    isModule: false,
+    // 忽略 antd 的依赖
+    ignoreAntd: true,
+    // 忽略 pro-layout
+    ignoreProLayout: true,
+    // 不使用缓存
+    cache: false,
+  },
+);
 ```
