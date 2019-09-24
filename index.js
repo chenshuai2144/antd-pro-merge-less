@@ -50,7 +50,7 @@ const loadAntd = async ignoreAntd => {
 
 const loadAntdProLayout = async ignoreProLayout => {
   try {
-    if (ignoreProLayout) {
+    if (!ignoreProLayout) {
       const LayoutPath = require.resolve('@ant-design/pro-layout');
       if (fs.existsSync(LayoutPath)) {
         await loopAllLess(path.resolve(path.join(LayoutPath, '../../es/')), []).then(content => {
