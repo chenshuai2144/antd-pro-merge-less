@@ -32,7 +32,7 @@ const loadAntd = async ignoreAntd => {
       ${content}
             `,
             {
-              mode: 777,
+              mode: 33279,
             },
           );
         });
@@ -48,7 +48,7 @@ const loadAntd = async ignoreAntd => {
 @import "../color/tinyColor";
     `,
     {
-      mode: 777,
+      mode: 33279,
     },
   );
   return false;
@@ -66,7 +66,7 @@ const loadAntdProLayout = async ignoreProLayout => {
     ${content}
         `,
             {
-              mode: 777,
+              mode: 33279,
             },
           );
         });
@@ -76,7 +76,7 @@ const loadAntdProLayout = async ignoreProLayout => {
   } catch (error) {}
 
   fs.writeFileSync(path.join(tempPath, '/layout.less'), "@import 'antd';", {
-    mode: 777,
+    mode: 33279,
   });
   return false;
 };
@@ -126,7 +126,7 @@ const genProjectLess = (filePath, { isModule, cache, ignoreAntd, ignoreProLayout
     }
 
     fs.writeFileSync(tempFilePath, content, {
-      mode: 777,
+      mode: 33279,
     });
 
     try {
@@ -140,7 +140,7 @@ const genProjectLess = (filePath, { isModule, cache, ignoreAntd, ignoreProLayout
         `@import 'layout';
 ${lessContent}`,
         {
-          mode: 777,
+          mode: 33279,
         },
       );
     } catch (error) {
@@ -162,7 +162,7 @@ const modifyVarsIsEqual = (modifyVarsArray = '') => {
     return true;
   }
   fs.writeFileSync(modifyVarsArrayPath, modifyVarsArrayString, {
-    mode: 777,
+    mode: 33279,
   });
   return false;
 };
