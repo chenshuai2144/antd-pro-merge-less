@@ -1,10 +1,10 @@
-/* eslint-disable */
 const postcss = require('postcss');
 const syntax = require('postcss-less');
 const Tokenizer = require('css-selector-tokenizer');
 const genericNames = require('generic-names');
 const getLocalIdentName = require('./getLocalIdentName');
 const uniqBy = require('lodash.uniqby');
+
 const fileNameList = [];
 
 const walkRules = (less, callback) => {
@@ -86,14 +86,13 @@ function localizeNode(node, { mode, inside, getAlias }) {
               getAlias,
             }).nodes,
           ];
-        } else {
-          return [
-            ...acc,
-            Object.assign({}, n, {
-              nodes: localizeNode(n.nodes[0], { mode, inside, getAlias }).nodes,
-            }),
-          ];
         }
+        return [
+          ...acc,
+          Object.assign({}, n, {
+            nodes: localizeNode(n.nodes[0], { mode, inside, getAlias }).nodes,
+          }),
+        ];
 
       case 'id':
       case 'class':
@@ -124,7 +123,7 @@ const getValue = (messages, name) =>
 const isRedeclared = (messages, name) =>
   messages.find(msg => msg.type === 'icss-scoped' && msg.name === name);
 
-const LocalIdentNameplugin = postcss.plugin('LocalIdentNameplugin', options => {
+const LocalIdentNamePlugin = postcss.plugin('LocalIdentNamePlugin', options => {
   const generateScopedName =
     options.generateScopedName || genericNames('[name]__[local]---[hash:base64:5]');
   const aliases = {};
@@ -165,7 +164,7 @@ const LocalIdentNameplugin = postcss.plugin('LocalIdentNameplugin', options => {
           }
           rule.selector = selector;
         } else {
-          //selector 为空，说明是个 :global{}
+          // selector 为空，说明是个 :global{}
           // 从他的父节点中删除他，并且插入他的子节点
           // 这个写法是因为 css 与 less 的不同导致的，
           // 因为 css 下会是 :golbal .classname,但是 less 是 :golbal{.classname}
@@ -180,10 +179,9 @@ const LocalIdentNameplugin = postcss.plugin('LocalIdentNameplugin', options => {
   };
 });
 
-const AddLocalIdentName = (lessPath, lessText, isModule) => {
-  lessPath = lessPath;
-  return postcss([
-    LocalIdentNameplugin({
+const AddLocalIdentName = (lessPath, lessText, isModule) =>
+  postcss([
+    LocalIdentNamePlugin({
       generateScopedName: className => {
         if (!isModule) {
           return className;
@@ -196,10 +194,9 @@ const AddLocalIdentName = (lessPath, lessText, isModule) => {
       from: lessPath,
       syntax,
     })
-    .then(result => {
-      result.messages = uniqBy(fileNameList);
-      return result;
-    });
-};
+    .then(result => ({
+      ...result,
+      messages: uniqBy(fileNameList),
+    }));
 
 module.exports = AddLocalIdentName;

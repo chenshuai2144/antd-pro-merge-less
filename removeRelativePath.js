@@ -1,5 +1,3 @@
-const deleteRelativePath = array => {
-  return array.filter(file => !file.includes("~@"));
-};
+const deleteRelativePath = array => array.filter(file => !file.includes('~@'));
 
 module.exports = deleteRelativePath;

@@ -1,10 +1,11 @@
 const path = require('path');
 const glob = require('glob');
+const uniqBy = require('lodash.uniqby');
+const prettier = require('prettier');
+
 const getVariable = require('./getVariable');
 const replaceDefaultLess = require('./replaceDefaultLess');
 const deleteRelativePath = require('./removeRelativePath');
-const uniqBy = require('lodash.uniqby');
-const prettier = require('prettier');
 
 // read less file list
 const loopAllLess = async (parents, ignore = ['**/node_modules/**', '**/lib/**', '**/es/**']) => {

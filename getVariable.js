@@ -1,7 +1,7 @@
-/* eslint-disable */
 const postcss = require('postcss');
 const syntax = require('postcss-less');
 const uniqBy = require('lodash.uniqby');
+
 const fileNameList = [];
 
 function discardAndReport(less, result) {
@@ -21,6 +21,8 @@ function discardAndReport(less, result) {
         (node.selector && (node.toString().includes('(') && node.selector.indexOf('.') === 0)) ||
         (node.toString().includes('@') && !node.toString().includes('{'))
       ) {
+        // should have same code
+        node.fileNameList = '';
       } else {
         node.remove();
       }
@@ -35,40 +37,36 @@ function discardAndReport(less, result) {
 
   less.each(discardEmpty);
 }
-const LocalIdentNamePlugin = postcss.plugin('LocalIdentNamePlugin', options => {
-  return (less, result) => {
-    less.walkAtRules(atRule => {
-      if (atRule.import) {
-        atRule.remove();
-      }
-    });
-    less.walkDecls(decls => {
-      const content = decls.toString();
-      if (
-        (!content.includes('@') && !content.includes('border')) ||
-        (content.includes('padding') || content.includes('margin'))
-      ) {
-        decls.remove();
-      }
-    });
-    less.walkComments(decls => {
+const LocalIdentNamePlugin = postcss.plugin('LocalIdentNamePlugin', () => (less, result) => {
+  less.walkAtRules(atRule => {
+    if (atRule.import) {
+      atRule.remove();
+    }
+  });
+  less.walkDecls(decls => {
+    const content = decls.toString();
+    if (
+      (!content.includes('@') && !content.includes('border')) ||
+      (content.includes('padding') || content.includes('margin'))
+    ) {
       decls.remove();
-    });
-    discardAndReport(less, result);
-  };
+    }
+  });
+  less.walkComments(decls => {
+    decls.remove();
+  });
+  discardAndReport(less, result);
 });
 
-const getVariable = (lessPath, lessText) => {
-  lessPath = lessPath;
-  return postcss([LocalIdentNamePlugin()])
+const getVariable = (lessPath, lessText) =>
+  postcss([LocalIdentNamePlugin()])
     .process(lessText, {
       from: lessPath,
       syntax,
     })
-    .then(result => {
-      result.messages = uniqBy(fileNameList);
-      return result;
-    });
-};
+    .then(result => ({
+      messages: uniqBy(fileNameList),
+      ...result,
+    }));
 
 module.exports = getVariable;

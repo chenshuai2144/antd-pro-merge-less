@@ -39,7 +39,9 @@ const loadAntd = async ignoreAntd => {
         return true;
       }
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 
   fs.writeFileSync(
     path.join(tempPath, './antd.less'),
@@ -73,7 +75,9 @@ const loadAntdProLayout = async ignoreProLayout => {
         return true;
       }
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 
   fs.writeFileSync(path.join(tempPath, '/layout.less'), "@import 'antd';", {
     mode: 33279,
@@ -95,9 +99,9 @@ const getModifyVars = (theme = 'light', modifyVars) => {
   }
 };
 
-const getOldFile = path => {
-  if (fs.existsSync(path)) {
-    return fs.readFileSync(path);
+const getOldFile = filePath => {
+  if (fs.existsSync(filePath)) {
+    return fs.readFileSync(filePath);
   }
   return false;
 };
@@ -110,7 +114,7 @@ const genProjectLess = (filePath, { isModule, cache, ignoreAntd, ignoreProLayout
       rimraf.sync(tempPath);
     }
     if (!fs.existsSync(tempPath)) {
-      fs.mkdirSync(tempPath, { mode: 777 });
+      fs.mkdirSync(tempPath, { mode: 33279 });
     }
 
     const tempFilePath = winPath(path.join(tempPath, 'temp.less'));
@@ -131,9 +135,7 @@ const genProjectLess = (filePath, { isModule, cache, ignoreAntd, ignoreProLayout
 
     try {
       const lessContent = await getVariable(tempFilePath, fs.readFileSync(tempFilePath)).then(
-        result => {
-          return result.content.toString();
-        },
+        result => result.content.toString(),
       );
       fs.writeFileSync(
         winPath(path.join(tempPath, 'pro.less')),
@@ -170,7 +172,7 @@ const modifyVarsIsEqual = (modifyVarsArray = '') => {
 const renderLess = (theme, modifyVars, { min = true }) => {
   const proLess = winPath(path.join(tempPath, './pro.less'));
   if (!fs.existsSync(proLess)) {
-    return;
+    return '';
   }
   return (
     less
@@ -187,17 +189,23 @@ const renderLess = (theme, modifyVars, { min = true }) => {
   );
 };
 
-const build = async (cwd, modifyVarsArray, option = { isModule: true, cache: true }) => {
+const build = async (cwd, modifyVarsArray, propsOption = { isModule: true, cache: true }) => {
   isEqual = false;
+  const defaultOption = { isModule: true, cache: true };
+  const option = {
+    ...defaultOption,
+    propsOption,
+  };
   try {
     await genProjectLess(cwd, option);
-    if (modifyVarsIsEqual(modifyVarsArray)) {
+    if (modifyVarsIsEqual(modifyVarsArray) && isEqual) {
       return;
     }
 
     modifyVarsArray.map(async ({ theme, modifyVars, fileName }) => {
       const css = await renderLess(theme, modifyVars, option);
-      fs.writeFileSync(fileName, css, { mode: 777 });
+      console.log(fileName);
+      fs.writeFileSync(fileName, css, { mode: 33279 });
     });
   } catch (error) {
     console.log(error);
