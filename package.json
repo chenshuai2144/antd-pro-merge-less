@@ -1,6 +1,6 @@
 {
   "name": "antd-pro-merge-less",
-  "version": "2.0.18",
+  "version": "2.0.19",
   "description": "A webpack plugin for ant design pro less",
   "main": "index.js",
   "scripts": {
@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@umijs/fabric": "^1.1.10",
-    "typescript": "^3.6.3",
-    "eslint": "5"
+    "eslint": "5",
+    "typescript": "^3.6.3"
   }
 }
