@@ -194,9 +194,10 @@ const AddLocalIdentName = (lessPath, lessText, isModule) =>
       from: lessPath,
       syntax,
     })
-    .then(result => ({
-      ...result,
-      messages: uniqBy(fileNameList),
-    }));
+    .then(result => {
+      // eslint-disable-next-line no-param-reassign
+      result.messages = uniqBy(fileNameList);
+      return result;
+    });
 
 module.exports = AddLocalIdentName;

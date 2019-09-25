@@ -64,9 +64,10 @@ const getVariable = (lessPath, lessText) =>
       from: lessPath,
       syntax,
     })
-    .then(result => ({
-      messages: uniqBy(fileNameList),
-      ...result,
-    }));
+    .then(result => {
+      // eslint-disable-next-line no-param-reassign
+      result.messages = uniqBy(fileNameList);
+      return result;
+    });
 
 module.exports = getVariable;

@@ -39,9 +39,8 @@ const loadAntd = async ignoreAntd => {
         return true;
       }
     }
-  } catch (error) {
-    console.log(error);
-  }
+    // eslint-disable-next-line no-empty
+  } catch (error) {}
 
   fs.writeFileSync(
     path.join(tempPath, './antd.less'),
@@ -75,9 +74,8 @@ const loadAntdProLayout = async ignoreProLayout => {
         return true;
       }
     }
-  } catch (error) {
-    console.log(error);
-  }
+    // eslint-disable-next-line no-empty
+  } catch (error) {}
 
   fs.writeFileSync(path.join(tempPath, '/layout.less'), "@import 'antd';", {
     mode: 33279,
@@ -159,7 +157,7 @@ const modifyVarsIsEqual = (modifyVarsArray = '') => {
 
   const modifyVarsArrayPath = path.join(tempPath, 'modifyVarsArray.json');
   const old = getOldFile(modifyVarsArrayPath);
-  if (genHashCode(old) === genHashCode(modifyVarsArrayString) && isEqual) {
+  if (old && genHashCode(old) === genHashCode(modifyVarsArrayString) && isEqual) {
     console.log('📸  less and modifyVarsArray is equal!');
     return true;
   }
@@ -194,7 +192,7 @@ const build = async (cwd, modifyVarsArray, propsOption = { isModule: true, cache
   const defaultOption = { isModule: true, cache: true };
   const option = {
     ...defaultOption,
-    propsOption,
+    ...propsOption,
   };
   try {
     await genProjectLess(cwd, option);
@@ -204,7 +202,6 @@ const build = async (cwd, modifyVarsArray, propsOption = { isModule: true, cache
 
     modifyVarsArray.map(async ({ theme, modifyVars, fileName }) => {
       const css = await renderLess(theme, modifyVars, option);
-      console.log(fileName);
       fs.writeFileSync(fileName, css, { mode: 33279 });
     });
   } catch (error) {
