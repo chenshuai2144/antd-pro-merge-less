@@ -152,18 +152,17 @@ ${lessContent}`,
     return true;
   });
 
+const modifyVarsArrayPath = path.join(tempPath, 'modifyVarsArray.json');
+
 const modifyVarsIsEqual = (modifyVarsArray = '') => {
   const modifyVarsArrayString = JSON.stringify(modifyVarsArray);
 
-  const modifyVarsArrayPath = path.join(tempPath, 'modifyVarsArray.json');
   const old = getOldFile(modifyVarsArrayPath);
   if (old && genHashCode(old) === genHashCode(modifyVarsArrayString) && isEqual) {
     console.log('📸  less and modifyVarsArray is equal!');
     return true;
   }
-  fs.writeFileSync(modifyVarsArrayPath, modifyVarsArrayString, {
-    mode: 33279,
-  });
+
   return false;
 };
 
@@ -201,8 +200,16 @@ const build = async (cwd, modifyVarsArray, propsOption = { isModule: true, cache
     }
 
     modifyVarsArray.map(async ({ theme, modifyVars, fileName }) => {
-      const css = await renderLess(theme, modifyVars, option);
-      fs.writeFileSync(fileName, css, { mode: 33279 });
+      try {
+        const css = await renderLess(theme, modifyVars, option);
+        fs.writeFileSync(fileName, css, { mode: 33279 });
+        // 写入缓存的变量值设置
+        fs.writeFileSync(modifyVarsArrayPath, JSON.toString(modifyVars), {
+          mode: 33279,
+        });
+      } catch (error) {
+        console.log(error);
+      }
     });
   } catch (error) {
     console.log(error);
