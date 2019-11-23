@@ -198,8 +198,11 @@ const build = async (cwd, modifyVarsArray, propsOption = { isModule: true, cache
     if (modifyVarsIsEqual(modifyVarsArray) && isEqual) {
       return;
     }
-
-    modifyVarsArray.map(async ({ theme, modifyVars, fileName }) => {
+    const loop = async index => {
+      if (!modifyVarsArray[index]) {
+        return false;
+      }
+      const { theme, modifyVars, fileName } = modifyVarsArray[index];
       try {
         const css = await renderLess(theme, modifyVars, option);
         fs.writeFileSync(fileName, css, { mode: 33279 });
@@ -210,7 +213,17 @@ const build = async (cwd, modifyVarsArray, propsOption = { isModule: true, cache
       } catch (error) {
         console.log(error);
       }
+      if (index < modifyVarsArray.length) {
+        await loop(index + 1);
+        return true;
+      }
+      return true;
+    };
+    // 写入缓存的变量值设置
+    fs.writeFileSync(modifyVarsArrayPath, JSON.toString(modifyVarsArray), {
+      mode: 33279,
     });
+    await loop(0);
   } catch (error) {
     console.log(error);
   }
