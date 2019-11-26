@@ -108,7 +108,7 @@ let isEqual = false;
 
 const genProjectLess = (filePath, { isModule, cache, ignoreAntd, ignoreProLayout }) =>
   genModuleLess(filePath, isModule).then(async content => {
-    if (!cache) {
+    if (cache === false) {
       rimraf.sync(tempPath);
     }
     if (!fs.existsSync(tempPath)) {
@@ -132,9 +132,10 @@ const genProjectLess = (filePath, { isModule, cache, ignoreAntd, ignoreProLayout
     });
 
     try {
-      const lessContent = await getVariable(tempFilePath, fs.readFileSync(tempFilePath)).then(
-        result => result.content.toString(),
-      );
+      const lessContent = await getVariable(
+        tempFilePath,
+        fs.readFileSync(tempFilePath),
+      ).then(result => result.content.toString());
       fs.writeFileSync(
         winPath(path.join(tempPath, 'pro.less')),
         `@import 'layout';
