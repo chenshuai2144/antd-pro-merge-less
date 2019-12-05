@@ -1,3 +1,5 @@
+/** @format */
+
 const loopAllLess = require('./loopAllLess');
 const fs = require('fs');
 const path = require('path');
@@ -83,11 +85,11 @@ const loadAntdProLayout = async ignoreProLayout => {
   return false;
 };
 
-const getModifyVars = (theme = 'light', modifyVars) => {
+const getModifyVars = (theme = 'light', modifyVars, disableExtendsDark) => {
   try {
     if (theme === 'dark') {
       return {
-        ...darkTheme.default,
+        ...(disableExtendsDark ? {} : darkTheme.default),
         ...modifyVars,
       };
     }
@@ -167,7 +169,7 @@ const modifyVarsIsEqual = (modifyVarsArray = '') => {
   return false;
 };
 
-const renderLess = (theme, modifyVars, { min = true }) => {
+const renderLess = (theme, modifyVars, { min = true, disableExtendsDark = false }) => {
   const proLess = winPath(path.join(tempPath, './pro.less'));
   if (!fs.existsSync(proLess)) {
     return '';
@@ -175,7 +177,7 @@ const renderLess = (theme, modifyVars, { min = true }) => {
   return (
     less
       .render(fs.readFileSync(proLess, 'utf-8'), {
-        modifyVars: getModifyVars(theme, modifyVars),
+        modifyVars: getModifyVars(theme, modifyVars, disableExtendsDark),
         javascriptEnabled: true,
         filename: path.resolve(proLess),
       })
@@ -203,9 +205,12 @@ const build = async (cwd, modifyVarsArray, propsOption = { isModule: true, cache
       if (!modifyVarsArray[index]) {
         return false;
       }
-      const { theme, modifyVars, fileName } = modifyVarsArray[index];
+      const { theme, modifyVars, fileName, disableExtendsDark } = modifyVarsArray[index];
       try {
-        const css = await renderLess(theme, modifyVars, option);
+        const css = await renderLess(theme, modifyVars, {
+          ...option,
+          disableExtendsDark,
+        });
         fs.writeFileSync(fileName, css, { mode: 33279 });
         // 写入缓存的变量值设置
         fs.writeFileSync(modifyVarsArrayPath, JSON.toString(modifyVars), {
