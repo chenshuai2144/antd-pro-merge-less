@@ -33,9 +33,6 @@ const loadAntd = async ignoreAntd => {
       @import "../color/tinyColor";
       ${content}
             `,
-            {
-              mode: 33279,
-            },
           );
         });
         return true;
@@ -50,9 +47,6 @@ const loadAntd = async ignoreAntd => {
 @import '../color/colorPalette';
 @import "../color/tinyColor";
     `,
-    {
-      mode: 33279,
-    },
   );
   return false;
 };
@@ -65,12 +59,9 @@ const loadAntdProLayout = async ignoreProLayout => {
         await loopAllLess(path.resolve(path.join(LayoutPath, '../../es/')), []).then(content => {
           fs.writeFileSync(
             path.join(tempPath, '/layout.less'),
-            `@import 'antd';
+            `@import './antd';
     ${content}
         `,
-            {
-              mode: 33279,
-            },
           );
         });
         return true;
@@ -79,9 +70,7 @@ const loadAntdProLayout = async ignoreProLayout => {
     // eslint-disable-next-line no-empty
   } catch (error) {}
 
-  fs.writeFileSync(path.join(tempPath, '/layout.less'), "@import 'antd';", {
-    mode: 33279,
-  });
+  fs.writeFileSync(path.join(tempPath, '/layout.less'), "@import './antd';");
   return false;
 };
 
@@ -114,7 +103,7 @@ const genProjectLess = (filePath, { isModule, cache, ignoreAntd, ignoreProLayout
       rimraf.sync(tempPath);
     }
     if (!fs.existsSync(tempPath)) {
-      fs.mkdirSync(tempPath, { mode: 33279 });
+      fs.mkdirSync(tempPath);
     }
 
     const tempFilePath = winPath(path.join(tempPath, 'temp.less'));
@@ -129,9 +118,7 @@ const genProjectLess = (filePath, { isModule, cache, ignoreAntd, ignoreProLayout
       return true;
     }
 
-    fs.writeFileSync(tempFilePath, content, {
-      mode: 33279,
-    });
+    fs.writeFileSync(tempFilePath, content);
 
     try {
       const lessContent = await getVariable(
@@ -140,11 +127,8 @@ const genProjectLess = (filePath, { isModule, cache, ignoreAntd, ignoreProLayout
       ).then(result => result.content.toString());
       fs.writeFileSync(
         winPath(path.join(tempPath, 'pro.less')),
-        `@import 'layout';
+        `@import './layout';
 ${lessContent}`,
-        {
-          mode: 33279,
-        },
       );
     } catch (error) {
       console.log(error.name, error.file, `line: ${error.line}`);
@@ -211,11 +195,9 @@ const build = async (cwd, modifyVarsArray, propsOption = { isModule: true, cache
           ...option,
           disableExtendsDark,
         });
-        fs.writeFileSync(fileName, css, { mode: 33279 });
+        fs.writeFileSync(fileName, css);
         // 写入缓存的变量值设置
-        fs.writeFileSync(modifyVarsArrayPath, JSON.toString(modifyVars), {
-          mode: 33279,
-        });
+        fs.writeFileSync(modifyVarsArrayPath, JSON.stringify(modifyVars));
       } catch (error) {
         console.log(error);
       }
@@ -226,9 +208,7 @@ const build = async (cwd, modifyVarsArray, propsOption = { isModule: true, cache
       return true;
     };
     // 写入缓存的变量值设置
-    fs.writeFileSync(modifyVarsArrayPath, JSON.toString(modifyVarsArray), {
-      mode: 33279,
-    });
+    fs.writeFileSync(modifyVarsArrayPath, JSON.stringify(modifyVarsArray));
     await loop(0);
   } catch (error) {
     console.log(error);

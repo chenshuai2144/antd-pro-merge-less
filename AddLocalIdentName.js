@@ -148,6 +148,9 @@ const LocalIdentNamePlugin = postcss.plugin('LocalIdentNamePlugin', options => {
         return alias;
       };
       try {
+        if (options.isModule === false) {
+          return;
+        }
         // 如果为 less mixin  variable  params 不需要处理
         const selector = localizeSelectors(
           rule.selector,
@@ -182,6 +185,7 @@ const LocalIdentNamePlugin = postcss.plugin('LocalIdentNamePlugin', options => {
 const AddLocalIdentName = (lessPath, lessText, isModule) =>
   postcss([
     LocalIdentNamePlugin({
+      isModule,
       generateScopedName: className => {
         if (!isModule) {
           return className;

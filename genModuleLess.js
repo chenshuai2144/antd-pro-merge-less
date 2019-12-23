@@ -14,7 +14,9 @@ const genModuleLess = (parents, isModule) => {
   const promiseList = [];
   lessArray = [];
   glob
-    .sync(winPath(`${parents}/**/**.less`), { ignore: ['**/node_modules/**', '**/_site/**'] })
+    .sync(winPath(`${parents}/**/**.less`), {
+      ignore: ['**/node_modules/**', '**/es/**', '**/lib/**', '**/dist/**', '**/_site/**'],
+    })
     .filter(
       filePath =>
         !filePath.includes('ant.design.pro.less') &&
