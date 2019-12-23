@@ -14,11 +14,12 @@ function discardAndReport(less, result) {
 
     if (
       (type === 'decl' && !node.value) ||
-      ((type === 'rule' && !node.selector) || (sub && !sub.length)) ||
+      (type === 'rule' && !node.selector) ||
+      (sub && !sub.length) ||
       (type === 'atrule' && ((!sub && !node.params) || (!node.params && !sub.length)))
     ) {
       if (
-        (node.selector && (node.toString().includes('(') && node.selector.indexOf('.') === 0)) ||
+        (node.selector && node.toString().includes('(') && node.selector.indexOf('.') === 0) ||
         (node.toString().includes('@') && !node.toString().includes('{'))
       ) {
         // should have same code
@@ -37,7 +38,7 @@ function discardAndReport(less, result) {
 
   less.each(discardEmpty);
 }
-const LocalIdentNamePlugin = postcss.plugin('LocalIdentNamePlugin', () => (less, result) => {
+const removeNoVarLessPlugin = postcss.plugin('LocalIdentNamePlugin', () => (less, result) => {
   less.walkAtRules(atRule => {
     if (atRule.import) {
       atRule.remove();
@@ -47,7 +48,8 @@ const LocalIdentNamePlugin = postcss.plugin('LocalIdentNamePlugin', () => (less,
     const content = decls.toString();
     if (
       (!content.includes('@') && !content.includes('border')) ||
-      (content.includes('padding') || content.includes('margin'))
+      content.includes('padding') ||
+      content.includes('margin')
     ) {
       decls.remove();
     }
@@ -59,7 +61,7 @@ const LocalIdentNamePlugin = postcss.plugin('LocalIdentNamePlugin', () => (less,
 });
 
 const getVariable = (lessPath, lessText) =>
-  postcss([LocalIdentNamePlugin()])
+  postcss([removeNoVarLessPlugin()])
     .process(lessText, {
       from: lessPath,
       syntax,

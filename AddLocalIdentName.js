@@ -23,7 +23,7 @@ const walkRules = (less, callback) => {
       }
     }
   });
-  const lessFile = less.source.input.file.split('src/')[1];
+  const lessFile = less.source.input.file.split('src/')[0];
   less.prepend(postcss.comment({ text: `\n  Convert to from  src/${lessFile}\n` }));
 };
 

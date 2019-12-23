@@ -97,7 +97,7 @@ const getOldFile = filePath => {
 
 let isEqual = false;
 
-const genProjectLess = (filePath, { isModule, cache, ignoreAntd, ignoreProLayout }) =>
+const genProjectLess = (filePath, { isModule, loadAny, cache, ignoreAntd, ignoreProLayout }) =>
   genModuleLess(filePath, isModule).then(async content => {
     if (cache === false) {
       rimraf.sync(tempPath);
@@ -121,15 +121,25 @@ const genProjectLess = (filePath, { isModule, cache, ignoreAntd, ignoreProLayout
     fs.writeFileSync(tempFilePath, content);
 
     try {
-      const lessContent = await getVariable(
-        tempFilePath,
-        fs.readFileSync(tempFilePath),
-      ).then(result => result.content.toString());
-      fs.writeFileSync(
-        winPath(path.join(tempPath, 'pro.less')),
-        `@import './layout';
-${lessContent}`,
-      );
+      if (loadAny) {
+        fs.writeFileSync(
+          winPath(path.join(tempPath, 'pro.less')),
+          `@import './layout';
+           ${content}`,
+        );
+      } else {
+        const lessContent = await getVariable(
+          tempFilePath,
+          fs.readFileSync(tempFilePath),
+          loadAny,
+        ).then(result => result.content.toString());
+
+        fs.writeFileSync(
+          winPath(path.join(tempPath, 'pro.less')),
+          `@import './layout';
+           ${lessContent}`,
+        );
+      }
     } catch (error) {
       console.log(error.name, error.file, `line: ${error.line}`);
     }
@@ -173,7 +183,11 @@ const renderLess = (theme, modifyVars, { min = true, disableExtendsDark = false 
   );
 };
 
-const build = async (cwd, modifyVarsArray, propsOption = { isModule: true, cache: true }) => {
+const build = async (
+  cwd,
+  modifyVarsArray,
+  propsOption = { isModule: true, loadAny: false, cache: true },
+) => {
   isEqual = false;
   const defaultOption = { isModule: true, cache: true };
   const option = {
