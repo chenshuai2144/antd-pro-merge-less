@@ -26,7 +26,7 @@ const genModuleLess = (parents, isModule) => {
       if (b.includes('index.less')) {
         bSortNumber = 1;
       }
-      return aSortNumber - bSortNumber;
+      return bSortNumber - aSortNumber;
     })
     .filter(
       filePath =>
