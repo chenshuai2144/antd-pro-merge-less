@@ -10,7 +10,14 @@ const fileNameList = [];
 const walkRules = (less, callback) => {
   less.walkAtRules(atRule => {
     if (atRule.import) {
-      console.log(atRule);
+      const filename = atRule.params;
+      if (
+        !filename.includes('style/mixins') &&
+        !filename.includes('style/themes') &&
+        !filename.includes('./index')
+      ) {
+        console.log(atRule.params);
+      }
       atRule.remove();
       if (atRule.options !== '(less)') {
         fileNameList.push(atRule.filename);
