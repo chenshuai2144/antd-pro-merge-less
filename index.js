@@ -226,7 +226,7 @@ const build = async (
     // 写入缓存的变量值设置
     fs.writeFileSync(modifyVarsArrayPath, JSON.stringify(modifyVarsArray));
     await loop(0);
-    console.log('🌈 less render end!');
+    console.log('🎩 less render end!');
   } catch (error) {
     console.log(error);
   }

@@ -4,6 +4,7 @@
  * 由于没有开源插件，所以自己撸了一个
  */
 const glob = require('glob');
+const uniqBy = require('lodash.uniqby');
 const { winPath } = require('umi-utils');
 const AddLocalIdentName = require('./AddLocalIdentName');
 const replaceDefaultLess = require('./replaceDefaultLess');
@@ -41,7 +42,25 @@ const genModuleLess = (parents, isModule) => {
       const fileContent = replaceDefaultLess(realPath);
       promiseList.push(AddLocalIdentName(realPath, fileContent, isModule));
     });
-  return Promise.all(promiseList).then(content => lessArray.concat(content).join('\n'));
+
+  return Promise.all(promiseList).then(content => {
+    let allFileList = [];
+    content.map(item => {
+      const { fileList, name } = item.messages;
+      allFileList = allFileList.concat([name, ...fileList]);
+      return item;
+    });
+    const fileString = uniqBy(allFileList).join('-');
+    return lessArray
+      .concat(
+        content.sort((a, b) => {
+          const aName = a.messages.name;
+          const bName = b.messages.name;
+          return fileString.indexOf(aName) - fileString.indexOf(bName);
+        }),
+      )
+      .join('\n');
+  });
 };
 
 module.exports = genModuleLess;
