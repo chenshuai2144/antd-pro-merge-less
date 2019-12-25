@@ -16,7 +16,7 @@ const walkRules = (less, callback) => {
         !filename.includes('style/themes') &&
         !filename.includes('./index')
       ) {
-        console.log(atRule.params);
+        fileNameList.push(atRule.params);
       }
       atRule.remove();
       if (atRule.options !== '(less)') {
