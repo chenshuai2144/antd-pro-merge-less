@@ -37,7 +37,7 @@ const loopAllLess = async (parents, ignore = ['**/node_modules/**', '**/lib/**',
             importFileList = importFileList.concat(result.messages);
             return result.content.toString();
           },
-          err => {
+          () => {
             //             console.log(
             //               `
             // 文件： ${err.file} 报错，

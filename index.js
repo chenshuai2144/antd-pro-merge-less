@@ -4,13 +4,14 @@ const loopAllLess = require('./loopAllLess');
 const fs = require('fs');
 const path = require('path');
 const less = require('less');
-const genModuleLess = require('./genModuleLess');
-const darkTheme = require('@ant-design/dark-theme');
-const { winPath } = require('umi-utils');
-const getVariable = require('./getVariable');
 const hash = require('hash.js');
 const rimraf = require('rimraf');
 const uglifycss = require('uglifycss');
+
+const { winPath } = require('umi-utils');
+const darkTheme = require('@ant-design/dark-theme');
+const genModuleLess = require('./genModuleLess');
+const getVariable = require('./getVariable');
 
 const genHashCode = content =>
   hash

@@ -4,9 +4,9 @@
  * 由于没有开源插件，所以自己撸了一个
  */
 const glob = require('glob');
+const { winPath } = require('umi-utils');
 const AddLocalIdentName = require('./AddLocalIdentName');
 const replaceDefaultLess = require('./replaceDefaultLess');
-const { winPath } = require('umi-utils');
 
 // read less file list
 const genModuleLess = (parents, isModule) => {
@@ -16,6 +16,17 @@ const genModuleLess = (parents, isModule) => {
   glob
     .sync(winPath(`${parents}/**/**.less`), {
       ignore: ['**/node_modules/**', '**/es/**', '**/lib/**', '**/dist/**', '**/_site/**'],
+    })
+    .sort((a, b) => {
+      let aSortNumber = 0;
+      let bSortNumber = 0;
+      if (a.includes('index.less')) {
+        aSortNumber = 1;
+      }
+      if (b.includes('index.less')) {
+        bSortNumber = 1;
+      }
+      return aSortNumber - bSortNumber;
     })
     .filter(
       filePath =>

@@ -10,6 +10,7 @@ const fileNameList = [];
 const walkRules = (less, callback) => {
   less.walkAtRules(atRule => {
     if (atRule.import) {
+      console.log(atRule);
       atRule.remove();
       if (atRule.options !== '(less)') {
         fileNameList.push(atRule.filename);

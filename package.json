@@ -23,7 +23,6 @@
   "dependencies": {
     "@ant-design/dark-theme": "^1.0.3",
     "css-selector-tokenizer": "^0.7.1",
-    "eslint": "5",
     "fs-extra": "^7.0.0",
     "generic-names": "^2.0.1",
     "glob": "^7.1.3",
