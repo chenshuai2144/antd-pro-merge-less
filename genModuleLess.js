@@ -35,7 +35,8 @@ const genModuleLess = (parents, isModule) => {
         !filePath.includes('global.less') &&
         !filePath.includes('bezierEasing.less') &&
         !filePath.includes('colorPalette.less') &&
-        !filePath.includes('tinyColor.less'),
+        !filePath.includes('tinyColor.less') &&
+        !filePath.includes('v2-compatible-reset'),
     )
     .forEach(realPath => {
       // post css add localIdentNamePlugin
