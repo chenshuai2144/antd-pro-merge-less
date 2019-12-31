@@ -35,8 +35,7 @@ const genModuleLess = (parents, isModule) => {
         !filePath.includes('global.less') &&
         !filePath.includes('bezierEasing.less') &&
         !filePath.includes('colorPalette.less') &&
-        !filePath.includes('tinyColor.less') &&
-        !filePath.includes('v2-compatible-reset'),
+        !filePath.includes('tinyColor.less'),
     )
     .forEach(realPath => {
       // post css add localIdentNamePlugin
@@ -57,6 +56,12 @@ const genModuleLess = (parents, isModule) => {
         content.sort((a, b) => {
           const aName = a.messages.name;
           const bName = b.messages.name;
+          if (aName.includes('v2-compatible-reset')) {
+            return 1;
+          }
+          if (bName.includes('v2-compatible-reset')) {
+            return -1;
+          }
           return fileString.indexOf(aName) - fileString.indexOf(bName);
         }),
       )
