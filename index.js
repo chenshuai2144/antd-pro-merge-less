@@ -126,7 +126,7 @@ const genProjectLess = (
     if (newFileHash === oldFileHash) {
       isEqual = true;
       // 无需重复生成
-      return true;
+      return false;
     }
 
     fs.writeFileSync(tempFilePath, content);
@@ -207,10 +207,12 @@ const build = async (
     ...propsOption,
   };
   try {
-    await genProjectLess(cwd, option);
-    if (modifyVarsIsEqual(modifyVarsArray) && isEqual) {
+    const needBuild = await genProjectLess(cwd, option);
+    if (!needBuild && modifyVarsIsEqual(modifyVarsArray)) {
+      console.log('🎩 less render end!');
       return;
     }
+
     const loop = async index => {
       if (!modifyVarsArray[index]) {
         return false;
