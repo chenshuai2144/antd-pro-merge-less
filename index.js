@@ -52,24 +52,31 @@ const loadAntd = async ignoreAntd => {
   return false;
 };
 
-const loadAntdProLayout = async ignoreProLayout => {
+const loadAntdComponents = async ({ filterFileLess }) => {
+  const components = ['@ant-design/pro-layout', '@ant-design/pro-table'];
   try {
-    if (!ignoreProLayout) {
-      const LayoutPath = require.resolve('@ant-design/pro-layout');
-      if (fs.existsSync(LayoutPath)) {
-        await loopAllLess(path.resolve(path.join(LayoutPath, '../../es/')), []).then(content => {
-          fs.writeFileSync(
-            path.join(tempPath, '/layout.less'),
-            `@import './antd';
-    ${content}
-        `,
-          );
-        });
-        return true;
-      }
+    if (components) {
+      const jobs = [];
+      components.forEach(item => {
+        if (filterFileLess && !filterFileLess(item)) {
+          return;
+        }
+        const componentPath = require.resolve(item);
+        if (fs.existsSync(componentPath)) {
+          jobs.push(loopAllLess(path.resolve(path.join(componentPath, '../../es/')), []));
+        }
+      });
+      const contentList = await Promise.all(jobs);
+      fs.writeFileSync(
+        path.join(tempPath, '/components.less'),
+        `@import './antd';
+${contentList.join('\n')}
+    `,
+      );
     }
-    // eslint-disable-next-line no-empty
-  } catch (error) {}
+  } catch (error) {
+    // console.log(error);
+  }
 
   fs.writeFileSync(path.join(tempPath, '/layout.less'), "@import './antd';");
   return false;
@@ -98,8 +105,11 @@ const getOldFile = filePath => {
 
 let isEqual = false;
 
-const genProjectLess = (filePath, { isModule, loadAny, cache, ignoreAntd, ignoreProLayout }) =>
-  genModuleLess(filePath, isModule).then(async content => {
+const genProjectLess = (
+  filePath,
+  { isModule, loadAny, cache, ignoreAntd, ignoreProLayout, ...rest },
+) =>
+  genModuleLess(filePath, { isModule, ...rest }).then(async content => {
     if (cache === false) {
       rimraf.sync(tempPath);
     }
@@ -125,7 +135,7 @@ const genProjectLess = (filePath, { isModule, loadAny, cache, ignoreAntd, ignore
       if (loadAny) {
         fs.writeFileSync(
           winPath(path.join(tempPath, 'pro.less')),
-          `@import './layout';
+          `@import './components';
            ${content}`,
         );
       } else {
@@ -137,7 +147,7 @@ const genProjectLess = (filePath, { isModule, loadAny, cache, ignoreAntd, ignore
 
         fs.writeFileSync(
           winPath(path.join(tempPath, 'pro.less')),
-          `@import './layout';
+          `@import './components';
            ${lessContent}`,
         );
       }
@@ -146,7 +156,7 @@ const genProjectLess = (filePath, { isModule, loadAny, cache, ignoreAntd, ignore
     }
 
     await loadAntd(ignoreAntd);
-    await loadAntdProLayout(ignoreProLayout);
+    await loadAntdComponents(rest);
     return true;
   });
 

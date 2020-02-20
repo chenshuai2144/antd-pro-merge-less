@@ -10,7 +10,7 @@ const AddLocalIdentName = require('./AddLocalIdentName');
 const replaceDefaultLess = require('./replaceDefaultLess');
 
 // read less file list
-const genModuleLess = (parents, isModule) => {
+const genModuleLess = (parents, { isModule, filterFileLess }) => {
   let lessArray = [];
   const promiseList = [];
   lessArray = [];
@@ -29,14 +29,21 @@ const genModuleLess = (parents, isModule) => {
       }
       return bSortNumber - aSortNumber;
     })
-    .filter(
-      filePath =>
-        !filePath.includes('ant.design.pro.less') &&
-        !filePath.includes('global.less') &&
-        !filePath.includes('bezierEasing.less') &&
-        !filePath.includes('colorPalette.less') &&
-        !filePath.includes('tinyColor.less'),
-    )
+    .filter(filePath => {
+      if (
+        filePath.includes('ant.design.pro.less') ||
+        filePath.includes('global.less') ||
+        filePath.includes('bezierEasing.less') ||
+        filePath.includes('colorPalette.less') ||
+        filePath.includes('tinyColor.less')
+      ) {
+        return false;
+      }
+      if (filterFileLess) {
+        return filterFileLess(filePath);
+      }
+      return true;
+    })
     .forEach(realPath => {
       // post css add localIdentNamePlugin
       const fileContent = replaceDefaultLess(realPath);
