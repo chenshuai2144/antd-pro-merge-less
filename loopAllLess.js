@@ -27,6 +27,29 @@ const loopAllLess = async (parents, ignore = ['**/node_modules/**', '**/lib/**',
       }
       return 1;
     })
+    .sort((a, b) => {
+      let aSortNumber = 0;
+      let bSortNumber = 0;
+      if (a.includes('index.less')) {
+        aSortNumber = 1;
+      }
+      if (b.includes('index.less')) {
+        bSortNumber = 1;
+      }
+      return bSortNumber - aSortNumber;
+    })
+    .filter(filePath => {
+      if (
+        filePath.includes('ant.design.pro.less') ||
+        filePath.includes('global.less') ||
+        filePath.includes('bezierEasing.less') ||
+        filePath.includes('colorPalette.less') ||
+        filePath.includes('tinyColor.less')
+      ) {
+        return false;
+      }
+      return true;
+    })
     .forEach(relayPath => {
       // post css add localIdentNameplugin
       const fileContent = replaceDefaultLess(relayPath);

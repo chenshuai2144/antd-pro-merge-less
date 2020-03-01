@@ -75,7 +75,7 @@ ${contentList.join('\n')}
       );
     }
   } catch (error) {
-    // console.log(error);
+    fs.writeFileSync(path.join(tempPath, '/components.less'), "@import './antd';");
   }
 
   fs.writeFileSync(path.join(tempPath, '/layout.less'), "@import './antd';");
