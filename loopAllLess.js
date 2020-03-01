@@ -44,7 +44,8 @@ const loopAllLess = async (parents, ignore = ['**/node_modules/**', '**/lib/**',
         filePath.includes('global.less') ||
         filePath.includes('bezierEasing.less') ||
         filePath.includes('colorPalette.less') ||
-        filePath.includes('tinyColor.less')
+        filePath.includes('tinyColor.less') ||
+        filePath.includes('~')
       ) {
         return false;
       }
