@@ -181,11 +181,18 @@ const renderLess = (theme, modifyVars, { min = true, disableExtendsDark = false 
   }
   return (
     less
-      .render(fs.readFileSync(proLess, 'utf-8'), {
-        modifyVars: getModifyVars(theme, modifyVars, disableExtendsDark),
-        javascriptEnabled: true,
-        filename: path.resolve(proLess),
-      })
+      .render(
+        `
+        html{
+          ${fs.readFileSync(proLess, 'utf-8')}
+        }
+        `,
+        {
+          modifyVars: getModifyVars(theme, modifyVars, disableExtendsDark),
+          javascriptEnabled: true,
+          filename: path.resolve(proLess),
+        },
+      )
       // 如果需要压缩，再打开压缩功能默认打开
       .then(out => (min ? uglifycss.processString(out.css) : out.css))
       .catch(e => {
