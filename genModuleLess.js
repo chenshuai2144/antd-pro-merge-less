@@ -9,6 +9,22 @@ const { winPath } = require('umi-utils');
 const AddLocalIdentName = require('./AddLocalIdentName');
 const replaceDefaultLess = require('./replaceDefaultLess');
 
+// priorty:
+// 3. other/**/index.less
+// 2. other/**.less
+// 1. site/theme/**/index.less
+// 0. site/theme/**.less
+const getLessPriorty = filename => {
+  let priority = 0;
+  if (filename.includes('index.less')) {
+    priority += 1;
+  }
+  if (!a.includes('site/theme')) {
+    priority += 2;
+  }
+  return priority;
+};
+
 // read less file list
 const genModuleLess = (parents, { isModule, filterFileLess }) => {
   let lessArray = [];
@@ -18,17 +34,7 @@ const genModuleLess = (parents, { isModule, filterFileLess }) => {
     .sync(winPath(`${parents}/**/**.less`), {
       ignore: ['**/node_modules/**', '**/es/**', '**/lib/**', '**/dist/**', '**/_site/**'],
     })
-    .sort((a, b) => {
-      let aSortNumber = 0;
-      let bSortNumber = 0;
-      if (a.includes('index.less')) {
-        aSortNumber = 1;
-      }
-      if (b.includes('index.less')) {
-        bSortNumber = 1;
-      }
-      return bSortNumber - aSortNumber;
-    })
+    .sort((a, b) => getLessPriorty(a) - getLessPriorty(b))
     .filter(filePath => {
       if (
         filePath.includes('ant.design.pro.less') ||
