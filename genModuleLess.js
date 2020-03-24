@@ -6,24 +6,10 @@
 const glob = require('glob');
 const uniqBy = require('lodash.uniqby');
 const { winPath } = require('umi-utils');
+
 const AddLocalIdentName = require('./AddLocalIdentName');
 const replaceDefaultLess = require('./replaceDefaultLess');
-
-// order:
-// 0. other/**/index.less
-// 1. other/**.less
-// 2. site/theme/**/index.less
-// 3. site/theme/**.less
-const getLessOrder = filename => {
-  let order = 0;
-  if (filename.includes('index.less')) {
-    order += 1;
-  }
-  if (!filename.includes('site/theme')) {
-    order += 2;
-  }
-  return order;
-};
+const lessOrder = require('./lessOrder');
 
 // read less file list
 const genModuleLess = (parents, { isModule, filterFileLess }) => {
@@ -32,9 +18,9 @@ const genModuleLess = (parents, { isModule, filterFileLess }) => {
   lessArray = [];
   glob
     .sync(winPath(`${parents}/**/**.less`), {
-      ignore: ['**/node_modules/**', '**/es/**', '**/lib/**', '**/dist/**', '**/_site/**'],
+      ignore: ['**/node_modules/**', '**/dist/**', '**/_site/**'],
     })
-    .sort((a, b) => getLessOrder(a) - getLessOrder(b))
+    .sort((a, b) => lessOrder(a) - lessOrder(b))
     .filter(filePath => {
       if (
         filePath.includes('ant.design.pro.less') ||

@@ -6,6 +6,7 @@ const prettier = require('prettier');
 const getVariable = require('./getVariable');
 const replaceDefaultLess = require('./replaceDefaultLess');
 const deleteRelativePath = require('./removeRelativePath');
+const lessOrder = require('./lessOrder');
 
 // read less file list
 const loopAllLess = async (parents, ignore = ['**/node_modules/**', '**/lib/**', '**/es/**']) => {
@@ -27,17 +28,7 @@ const loopAllLess = async (parents, ignore = ['**/node_modules/**', '**/lib/**',
       }
       return 1;
     })
-    .sort((a, b) => {
-      let aSortNumber = 0;
-      let bSortNumber = 0;
-      if (a.includes('index.less')) {
-        aSortNumber = 1;
-      }
-      if (b.includes('index.less')) {
-        bSortNumber = 1;
-      }
-      return bSortNumber - aSortNumber;
-    })
+    .sort((a, b) => lessOrder(a) - lessOrder(b))
     .filter(filePath => {
       if (
         filePath.includes('ant.design.pro.less') ||
