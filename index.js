@@ -1,6 +1,5 @@
 /** @format */
 
-const loopAllLess = require('./loopAllLess');
 const fs = require('fs');
 const path = require('path');
 const less = require('less');
@@ -9,9 +8,36 @@ const rimraf = require('rimraf');
 const uglifycss = require('uglifycss');
 
 const { winPath } = require('umi-utils');
-const darkTheme = require('@ant-design/dark-theme');
 const genModuleLess = require('./genModuleLess');
 const getVariable = require('./getVariable');
+const loopAllLess = require('./loopAllLess');
+
+const darkTheme = {
+  '@dart': true,
+  '@white': '#fff',
+  '@light': '#fff',
+  '@text-color': 'fade(@white, 65%)',
+  '@heading-color': 'fade(@white, 85%)',
+  // 移动
+  '@screen-sm': '767.9px',
+  // 超小屏
+  '@screen-xs': '375px',
+
+  // 官网
+  '@site-text-color': '@text-color',
+  '@site-border-color-split': 'fade(@light, 5)',
+  '@site-heading-color': '@heading-color',
+  '@site-header-box-shadow': '0 0.3px 0.9px rgba(0, 0, 0, 0.12), 0 1.6px 3.6px rgba(0, 0, 0, 0.12)',
+  '@home-text-color': '@text-color',
+
+  // 自定义需要找设计师
+  '@gray-8': '@text-color',
+  '@background-color-base': '#555',
+  '@skeleton-color': 'rgba(0,0,0,0.8)',
+
+  // pro
+  '@pro-header-box-shadow': '@site-header-box-shadow',
+};
 
 const genHashCode = content =>
   hash
@@ -21,26 +47,40 @@ const genHashCode = content =>
 
 const tempPath = winPath(path.join(__dirname, './.temp/'));
 
-const loadAntd = async ignoreAntd => {
+const loadAntd = async (ignoreAntd, { dark = false, compact = false }) => {
   try {
-    if (!ignoreAntd) {
-      const antdPath = require.resolve('antd');
-      if (fs.existsSync(antdPath)) {
-        await loopAllLess(path.resolve(path.join(antdPath, '../../es/')), []).then(content => {
+    if (ignoreAntd) {
+      return false;
+    }
+
+    const ignoreFiles = [];
+    if (!dark) {
+      ignoreFiles.push('themes/dark.less');
+    }
+    if (!compact) {
+      ignoreFiles.push('themes/compact.less');
+    }
+    const antdPath = require.resolve('antd');
+    if (fs.existsSync(antdPath)) {
+      await loopAllLess(path.resolve(path.join(antdPath, '../../es/')), ignoreFiles).then(
+        content => {
           fs.writeFileSync(
             path.join(tempPath, './antd.less'),
             `@import '../color/bezierEasing';
-      @import '../color/colorPalette';
-      @import "../color/tinyColor";
+@import '../color/colorPalette';
+@import "../color/tinyColor";
       ${content}
             `,
           );
-        });
-        return true;
-      }
+        },
+      );
+      return true;
     }
+
     // eslint-disable-next-line no-empty
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 
   fs.writeFileSync(
     path.join(tempPath, './antd.less'),
@@ -86,11 +126,11 @@ const getModifyVars = (theme = 'light', modifyVars, disableExtendsDark) => {
   try {
     if (theme === 'dark') {
       return {
-        ...(disableExtendsDark ? {} : darkTheme.default),
+        ...(disableExtendsDark ? {} : darkTheme),
         ...modifyVars,
       };
     }
-    return { ...modifyVars };
+    return { dark: false, ...modifyVars };
   } catch (error) {
     throw error;
   }
@@ -154,9 +194,8 @@ const genProjectLess = (
     } catch (error) {
       console.log(error.name, error.file, `line: ${error.line}`);
     }
-
-    await loadAntd(ignoreAntd);
     await loadAntdComponents(rest);
+
     return true;
   });
 
@@ -174,15 +213,26 @@ const modifyVarsIsEqual = (modifyVarsArray = '') => {
   return false;
 };
 
-const renderLess = (theme, modifyVars, { min = true, disableExtendsDark = false }) => {
+const renderLess = async (
+  theme = 'light',
+  modifyVars,
+  { min = true, ignoreAntd = false, disableExtendsDark = false },
+) => {
   const proLess = winPath(path.join(tempPath, './pro.less'));
   if (!fs.existsSync(proLess)) {
     return '';
   }
+  const myModifyVars = getModifyVars(theme || 'light', modifyVars, disableExtendsDark);
+
+  await loadAntd(ignoreAntd, {
+    dark: myModifyVars.dark,
+    compact: myModifyVars.compact,
+  });
+
   return (
     less
       .render(fs.readFileSync(proLess, 'utf-8'), {
-        modifyVars: getModifyVars(theme, modifyVars, disableExtendsDark),
+        modifyVars: myModifyVars,
         javascriptEnabled: true,
         filename: path.resolve(proLess),
       })
@@ -218,6 +268,7 @@ const build = async (
         return false;
       }
       const { theme, modifyVars, fileName, disableExtendsDark } = modifyVarsArray[index];
+
       try {
         const css = await renderLess(theme, modifyVars, {
           ...option,
