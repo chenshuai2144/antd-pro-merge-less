@@ -9,13 +9,12 @@ const deleteRelativePath = require('./removeRelativePath');
 const lessOrder = require('./lessOrder');
 
 // read less file list
-const loopAllLess = async (parents, ignore = ['**/node_modules/**', '**/lib/**', '**/es/**']) => {
+const loopAllLess = async (parents, ignore = []) => {
   const promiseList = [];
   let importFileList = [];
   const lessDir = path.join(parents, '**/**.less');
-
   glob
-    .sync(lessDir, { ignore })
+    .sync(lessDir, { ignore: [] })
     .filter(
       filePath => !filePath.includes('ant.design.pro.less') && !filePath.includes('global.less'),
     )
@@ -40,6 +39,10 @@ const loopAllLess = async (parents, ignore = ['**/node_modules/**', '**/lib/**',
       ) {
         return false;
       }
+      if (ignore.some(ignorePath => filePath.includes(ignorePath))) {
+        return false;
+      }
+
       return true;
     })
     .forEach(relayPath => {
