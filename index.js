@@ -50,6 +50,7 @@ const tempPath = winPath(path.join(__dirname, './.temp/'));
 const loadAntd = async (ignoreAntd, { dark = false, compact = false }) => {
   try {
     if (ignoreAntd) {
+      fs.writeFileSync(path.join(tempPath, './antd.less'), '');
       return false;
     }
 
