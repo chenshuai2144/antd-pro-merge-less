@@ -93,8 +93,8 @@ const loadAntd = async (ignoreAntd, { dark = false, compact = false }) => {
   return false;
 };
 
-const loadAntdComponents = async ({ filterFileLess }) => {
-  const components = ['@ant-design/pro-layout', '@ant-design/pro-table'];
+const loadLibraryComponents = async ({ filterFileLess, extraLibraries = [] }) => {
+  const components = ['@ant-design/pro-layout', '@ant-design/pro-table', ...extraLibraries];
   try {
     if (components) {
       const jobs = [];
@@ -195,7 +195,7 @@ const genProjectLess = (
     } catch (error) {
       console.log(error.name, error.file, `line: ${error.line}`);
     }
-    await loadAntdComponents(rest);
+    await loadLibraryComponents(rest);
 
     return true;
   });
