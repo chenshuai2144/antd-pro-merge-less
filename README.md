@@ -26,9 +26,12 @@ genCss(
     isModule: false,
     // 忽略 antd 的依赖,用于打包 antd 自己的依赖
     ignoreAntd: true,
+    // 忽略 pro-layout 的依赖
+    ignoreProLayout: true,
     // 不使用缓存
     cache: false,
     filterFileLess: filename => boolean,
+    extraLibraries: []
   },
 );
 ```
