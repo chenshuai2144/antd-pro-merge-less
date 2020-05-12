@@ -94,7 +94,7 @@ const loadAntd = async (ignoreAntd, { dark = false, compact = false }) => {
 };
 
 const loadLibraryComponents = async ({ filterFileLess, extraLibraries = [] }) => {
-  const components = ['@ant-design/pro-layout', '@ant-design/pro-table'].concat(extraLibraries);
+  const components = ['@ant-design/pro-layout', '@ant-design/pro-table', ...extraLibraries];
   try {
     if (components) {
       const jobs = [];
