@@ -50,7 +50,13 @@ const tempPath = winPath(path.join(__dirname, './.temp/'));
 const loadAntd = async (ignoreAntd, { dark = false, compact = false }) => {
   try {
     if (ignoreAntd) {
-      fs.writeFileSync(path.join(tempPath, './antd.less'), '');
+      fs.writeFileSync(
+        path.join(tempPath, './antd.less'),
+        `@import '../color/bezierEasing';
+      @import '../color/colorPalette';
+      @import "../color/tinyColor";
+          `,
+      );
       return false;
     }
 
