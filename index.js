@@ -6,6 +6,7 @@ const less = require('less');
 const hash = require('hash.js');
 const rimraf = require('rimraf');
 const uglifycss = require('uglifycss');
+const defaultDarkTheme = require('@ant-design/dark-theme');
 
 const { winPath } = require('umi-utils');
 const genModuleLess = require('./genModuleLess');
@@ -13,7 +14,8 @@ const getVariable = require('./getVariable');
 const loopAllLess = require('./loopAllLess');
 
 const darkTheme = {
-  '@dart': true,
+  ...defaultDarkTheme.default,
+  dark: true,
   '@white': '#fff',
   '@light': '#fff',
   '@text-color': 'fade(@white, 65%)',

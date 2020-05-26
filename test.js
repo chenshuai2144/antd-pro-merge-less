@@ -1,7 +1,7 @@
 const genCss = require('./index');
 
 genCss(
-  'C:/github/ant-design-pro',
+  '/Users/qixian/Documents/github/ant-design-pro',
   [
     {
       theme: 'dark',
