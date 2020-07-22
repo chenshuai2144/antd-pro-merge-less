@@ -5,10 +5,10 @@
 // 3. site/theme/**.less
 const lessOrder = filename => {
   let order = 0;
-  if (filename.includes('index.less')) {
+  if (!filename.includes('index.less')) {
     order += 1;
   }
-  if (!filename.includes('site/theme')) {
+  if (filename.includes('site/theme')) {
     order += 2;
   }
   return order;
