@@ -35,7 +35,6 @@ const darkTheme = {
   // 自定义需要找设计师
   '@gray-8': '@text-color',
   '@background-color-base': '#555',
-  '@skeleton-color': 'rgba(0,0,0,0.8)',
 
   // pro
   '@pro-header-box-shadow': '@site-header-box-shadow',
