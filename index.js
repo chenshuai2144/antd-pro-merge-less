@@ -132,7 +132,7 @@ ${contentList.join('\n')}
 
 const getModifyVars = (theme = 'light', modifyVars, disableExtendsDark) => {
   try {
-    if (theme === 'dark') {
+    if (theme === 'dark' || theme === 'auto') {
       return {
         ...(disableExtendsDark ? {} : darkTheme),
         ...modifyVars,
@@ -244,8 +244,10 @@ const renderLess = async (
         javascriptEnabled: true,
         filename: path.resolve(proLess),
       })
+      .then(out => out.css)
+      .then(out => theme === 'auto' ? '@media (prefers-color-scheme: dark) {' + out + 'body{background-color: #000;}}' : out)
       // 如果需要压缩，再打开压缩功能默认打开
-      .then(out => (min ? uglifycss.processString(out.css) : out.css))
+      .then(out => (min ? uglifycss.processString(out) : out))
       .catch(e => {
         console.log(e);
       })
